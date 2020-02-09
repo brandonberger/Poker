@@ -1,0 +1,41 @@
+.deck {
+    display: inline-block;
+}
+
+.card {
+    height: 200px;
+    width: 140px;
+    border: 1px solid black;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 10px;
+}
+
+
+.highlight {
+    border: solid 1px blue;
+}
+
+.card .topValue {
+    padding: 5px;
+}
+
+
+.suit-icon {
+    width: 20px;
+    background-size: cover;
+    height: 20px;
+}
+
+.Hearts-icon {
+    background-image: url('../img/hearts.png');
+}
+.Diamonds-icon {
+    background-image: url('../img/diamonds.png');
+}
+.Clubs-icon {
+    background-image: url('../img/clubs.png');
+}
+.Spades-icon {
+    background-image: url('../img/spades.png');
+}
