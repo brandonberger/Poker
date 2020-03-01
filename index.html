@@ -2,6 +2,7 @@
 <html>
     <head>
         <link rel="stylesheet" href="public/css/main.css" />
+        <link rel="shortcut icon" href="public/img/fav.ico">
     </head>
     <body>
 
@@ -9,7 +10,12 @@
         <button onclick="dealCards()">Deal</button>
         <button onclick="dealCommunityCards()">Flip</button>
         <button onclick="findWinner()">Find Winner</button>
+        <button onclick="autoPlay()">AutoPlay</button>
 
+
+        <div class="winner-banner" id="winnerBanner" style="display:none;">
+            
+        </div>
 
         <h3>Your Hand</h3>
         <div class="yourHand" id="yourHand">

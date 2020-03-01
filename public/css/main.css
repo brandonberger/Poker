@@ -39,3 +39,17 @@
 .Spades-icon {
     background-image: url('../img/spades.png');
 }
+
+.winner-banner {
+    background-color: #3498db;
+    width: 100%;
+    padding: 100px 0px;
+    color: white;
+    font-size: 32px;
+    font-family: arial;
+    text-align: center;
+}
+
+.show {
+    display: block !important;
+}
