@@ -1,3 +1,43 @@
+function test(type) {
+    if (type == 'royal-flush') {
+        communityCards = [
+            {fullName: "Ten of Spades", suit: "Spades", name: "Ten", faceValue: "10", numericValue: 10, location: 'community'},
+            {fullName: "Jack of Spades", suit: "Spades", name: "Eleven", faceValue: "11", numericValue: 11, location: 'community'},
+            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "12", numericValue: 12, location: 'community'},
+            {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "13", numericValue: 13, location: 'community'},
+            {fullName: "Ace of Spades", suit: "Spades", name: "Ace", faceValue: "14", numericValue: 14, location: 'community'}
+        ];
+        paintCards(communityCards, 'communityCards');
+        shuffleDeck();
+        dealCards();
+        findWinner();
+    } else if (type == 'flush') {
+        communityCards = [
+            {fullName: "Eight of Spades", suit: "Spades", name: "Eight", faceValue: "8", numericValue: 8, location: 'community'},
+            {fullName: "Ten of Spades", suit: "Spades", name: "Ten", faceValue: "10", numericValue: 10, location: 'community'},
+            {fullName: "Jack of Spades", suit: "Spades", name: "Eleven", faceValue: "11", numericValue: 11, location: 'community'},
+            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "12", numericValue: 12, location: 'community'},
+            {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "13", numericValue: 13, location: 'community'}
+        ];
+        paintCards(communityCards, 'communityCards');
+        shuffleDeck();
+        dealCards();
+        findWinner();
+    } else if (type == 'straight') {
+        communityCards = [
+            {fullName: "Ace of Spades", suit: "Spades", name: "Ace", faceValue: "A", numericValue: 14, location: 'community'},
+            {fullName: "Ten of Hearts", suit: "Hearts", name: "Ten", faceValue: "10", numericValue: 10, location: 'community'},
+            {fullName: "Jack of Hearts", suit: "Hearts", name: "Eleven", faceValue: "J", numericValue: 11, location: 'community'},
+            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "Q", numericValue: 12, location: 'community'},
+            {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "K", numericValue: 13, location: 'community'}
+        ];
+        paintCards(communityCards, 'communityCards');
+        shuffleDeck();
+        dealCards();
+        findWinner();
+    }
+}
+
 const cards = {
     suits: ['Hearts', 'Spades', 'Diamonds', 'Clubs'],
     values: [
@@ -89,8 +129,6 @@ var players = [
     }
 ];
 
-
-
 function findFinalHands() {
     for (var i = 0; i < players.length; i++) {
         var finalHand = players[i].hand.concat(communityCards);
@@ -100,7 +138,6 @@ function findFinalHands() {
 }
 
 function findWinner() {
-
     findFinalHands();
 
     var winners = [];
@@ -121,8 +158,6 @@ function findWinner() {
         // tiebreaker
         winners = tieBreaker(winners, communityCards);
     }
-
-    console.log(winners);
 
     if (winners.message) {
         winnerString = winners.message;
@@ -182,6 +217,46 @@ function pairTie(winners, communityCards) {
         return kickerCard(highestPairPlayers, 1, [highestPair], null);
     }
 }
+
+function tieRoyalFlush(winners, communityCards) {
+    var winningMessage = buildWinningMessage(winners, null, true);
+    return {winners, message: winningMessage};
+}
+
+function tieFlush(winners, communityCards) {
+    // console.log(winners);
+}
+
+function tieStraight(winners, communityCards) {
+    highestStraight = 0;
+    highestStraightPlayers = [];
+
+    for (var i = 0; i < winners.length; i++) {
+        straightValue = winners[i].winningCards.highestCard;
+        if (highestStraight <= straightValue) {
+            if (straightValue > highestStraight) {
+                highestStraightPlayers = [];
+                highestStraight = straightValue;
+            }
+            highestStraightPlayers.push(winners[i]);
+        }
+    }
+
+    if (highestStraightPlayers.length == 1) {
+        var winningMessage = buildWinningMessage(highestStraightPlayers, null, null);
+        return {highestStraightPlayers, message: winningMessage};
+    } else {
+        var winningMessage = buildWinningMessage(highestStraightPlayers, null, 1);
+        return {highestStraightPlayers, message: winningMessage};
+    }
+}
+
+// function tieStraightFlush(winners, communityCards) {
+//     var highestCard;
+//     for (var i = 0; i < winners.length; i++) {
+//         var hand
+//     }
+// }
 
 function kickerCard(winningPlayers, numberOfKickers, valuesToIgnore, suiteToIgnore) {
     var highestKicker = 0;
@@ -273,7 +348,14 @@ function tieBreaker(winners, communityCards) {
         return pairTie(winners, communityCards);
     } else if (winType == 'High Card') {
         return highCard(winners, communityCards);
-        // return kickerCard(winners, 4, winners[0].winningCards.highestCard, null);
+    } else if (winType == 'Royal Flush') {
+        return tieRoyalFlush(winners, communityCards);
+    } else if (winType == 'Straight Flush') {
+        return tieStraightFlush(winners, communityCards);
+    } else if (winType == 'Flush') {
+        return tieFlush(winners, communityCards);
+    } else if (winType == 'Straight') {
+        return tieStraight(winners, communityCards);
     } else {
         return winners;
     }
@@ -315,6 +397,12 @@ function searchForWinningCards(cards, playerHand) {
     cards = cards.sort(sortCards);
     var straight = checkForAStraight(cards);
     var flush = checkForFlush(cards);
+
+    var straightFlush = false;
+    if (straight && flush) {
+        straightFlush = checkForStraightFlush(straight.matchedCards, flush.suit);
+    }
+
     var kinds = checkForSameKinds(cards);
 
     var pairs = [];
@@ -334,18 +422,22 @@ function searchForWinningCards(cards, playerHand) {
 
     // TODO: Need to pass in the cards not the highestValue
     // well, maybe.
-    if (flush && straight.highestCard == 14) {
+
+    // This actually doesn't work, need to check if the straight is all of the same suit. 
+    // It is possible that there is a straight and a flush but not a straight flush
+    if (flush && straight.highestCard == 14 && straightFlush) {
         return {type: 'Royal Flush', handCode: 10, highestCard: straight.highestCard};
-    } else if (flush && straight) {
+    // It is possible that there is a straight and a flush but not a straight flush
+    } else if (flush && straight && straightFlush) {
         return {type: 'Straight Flush', handCode: 9, highestCard: straight.highestCard};
     } else if (fourOfAKind) {
         return {type: '4 Of a Kind', handCode: 8, highestCard: fourOfAKind.highestCard};
     } else if (threeOfAKind && pair) {
         return {type: 'Full House', handCode: 7, highestCard: threeOfAKind.highestCard};
     } else if (flush) {
-        return {type: 'Flush', handCode: 6, highestCard: flush.highestCard};
+        return {type: 'Flush', handCode: 6, cards: flush.matchedCards};
     } else if (straight) {
-        return {type: 'Straight', handCode: 5, highestCard: straight.highestCard};
+        return {type: 'Straight', handCode: 5, highestCard: straight.highestCard, highestCardSuit: straight.highestCardSuit, highestCardLocation: straight.highestCardLocation};
     } else if (threeOfAKind) {
         return {type: 'Three of a kind', handCode: 4, highestCard: threeOfAKind.highestCard}; 
     } else if (pairs.length > 1) {
@@ -357,6 +449,23 @@ function searchForWinningCards(cards, playerHand) {
     }
 }
 
+function checkForStraightFlush(straightCards, flushSuit) {
+    var flushSuitCount = 0;
+    
+    for (var i = 0; i < straightCards.length; i++) {
+        if (straightCards.suit == flushSuit) {
+            flushSuitCount++;
+        } else {
+            continue;
+        }
+    }
+
+    if (flushSuitCount >= 5) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 function checkForSameKinds(cards) {
     var kinds = [];
@@ -441,7 +550,7 @@ function checkForFlush(cards) {
         }
     }
 
-    return {type: 'Flush', matchedCards: cards};
+    return {type: 'Flush', matchedCards: cards, suit: suitToSearchFor};
 }   
 
 
@@ -453,12 +562,15 @@ function getHighestCard(cards) {
 
 function removeDuplicateValues(cards) {
     var cardValues = [];
-    for (var i = 0; i < cards.length; i++) {
-        if (cardValues.includes(cards[i].numericValue)) {
-            continue;
-        } else {
-            cardValues.push(cards[i].numericValue);
+    loop1 : for (var i = 0; i < cards.length; i++) {
+
+        for (var j = 0; j < cardValues.length; j++) {
+            if (cardValues[j].numericValue == cards[i].numericValue) {
+                continue loop1;
+            }
         }
+
+        cardValues.push({numericValue: cards[i].numericValue, suit: cards[i].suit});
     }
     return cardValues;
 }
@@ -469,14 +581,16 @@ function checkForAStraight(cards) {
     var numberOfCardsInARow = [];
 
     for (var i = 0; i < cards.length; i++) {
-        if (i != 0 && (cards[i] - cards[i-1] == 1)) {
-            numberOfCardsInARow.push({match: 1, value: cards[i]});
-        } else if(cards[i+1] - cards[i] == 1) {
-            numberOfCardsInARow.push({match: 1, value: cards[i]});
+        if (i != 0 && (cards[i].numericValue - cards[i-1].numericValue == 1)) {
+            numberOfCardsInARow.push({match: 1, value: cards[i].numericValue, suit: cards[i].suit});
+        } else if(cards[i+1] && cards[i+1].numericValue - cards[i].numericValue == 1) {
+            numberOfCardsInARow.push({match: 1, value: cards[i].numericValue, suit: cards[i].suit});
         } else {
-            numberOfCardsInARow.push({match: 0, value: cards[i]});
+            numberOfCardsInARow.push({match: 0, value: cards[i].numericValue, suit: cards[i].suit});
         }
     }
+
+    console.log(numberOfCardsInARow);
 
     if (numberOfCardsInARow.some(card => card.value === 2 && card.match == 1) &&
         numberOfCardsInARow.some(card => card.value === 3 && card.match == 1) &&
@@ -500,23 +614,49 @@ function checkForAStraight(cards) {
     numberOfCardsInARow = numberOfCardsInARow.sort(sortStraight);
 
     var straightValue = 0;
+    var straightSuit = null;
     var highestStreak = 0;
     var currentStreak = 0;
+    var matchedCards = [];
+
     for (var i = 0; i < numberOfCardsInARow.length; i++) {
-        if (i != 0 && numberOfCardsInARow[i].match == 1 && numberOfCardsInARow[i-1].match == 1 && numberOfCardsInARow[i].value - numberOfCardsInARow[i-1].value == 1) {
+        if (
+            i != 0 && 
+            (
+                (
+                    numberOfCardsInARow[i].match == 1 && 
+                    numberOfCardsInARow[i-1].match == 1 && 
+                    numberOfCardsInARow[i].value - numberOfCardsInARow[i-1].value == 1
+                )
+                // || 
+                // (
+                //     numberOfCardsInARow[i].match == 1 && 
+                //     i == numberOfCardsInARow.length - 1 && 
+                //     numberOfCardsInARow[i-1].match == 1 && 
+                //     numberOfCardsInARow[i].value - numberOfCardsInARow[i-1].value == 1
+                // )
+            )
+        ) {
             currentStreak++;
             if (currentStreak > highestStreak) {
                 highestStreak++;
             }
             straightValue = numberOfCardsInARow[i].value;
+            straightSuit = numberOfCardsInARow[i].suit;
+            matchedCards.push(numberOfCardsInARow[i]);
         } else if (i == 0 && numberOfCardsInARow[i].match == 1) {
             highestStreak++;
             currentStreak++;
             straightValue = numberOfCardsInARow[i].value;
-        } else if (numberOfCardsInARow[i].match == 1 && numberOfCardsInARow[i-1].match == 0 && numberOfCardsInARow[i].value - numberOfCardsInARow[i-1].value != 1) {
+            straightSuit = numberOfCardsInARow[i].suit;
+            matchedCards.push(numberOfCardsInARow[i]);
+        } else if (numberOfCardsInARow[i].match == 1 && (numberOfCardsInARow[i-1].match == 0 || numberOfCardsInARow[i].value - numberOfCardsInARow[i-1].value != 1)) {
             if (highestStreak < 1) {
                 highestStreak = 1;
                 straightValue = numberOfCardsInARow[i].value;
+                straightSuit = numberOfCardsInARow[i].suit;
+                matchedCards = [];
+                matchedCards.push(numberOfCardsInARow[i]);
             }
             currentStreak = 1;
         } else {
@@ -525,7 +665,7 @@ function checkForAStraight(cards) {
     }
 
     if (highestStreak > 4) {
-        return {type: 'Straight', highestCard: straightValue};
+        return {type: 'Straight', highestCard: straightValue, highestCardSuit: straightSuit, matchedCards: matchedCards};
     } else {
         return false;
     }
@@ -566,10 +706,12 @@ function dealCommunityCards() {
 
     if (communityCardDeals == 0) {
         for (var i = 0; i < 3; i++) {
+            deck[0].location = 'Community';
             communityCards.push(deck[0]);
             deck.shift();
         }
     } else if (communityCardDeals > 0 && communityCardDeals < 3) {
+        deck[0].location = 'Community';
         communityCards.push(deck[0]);
         deck.shift();
     }
@@ -585,6 +727,7 @@ function dealCommunityCards() {
 function dealCards() {
     for (var i = 0; i < players.length; i++) {
         while (players[i].hand.length < 2) {
+            deck[0].location = 'PlayersHand';
             players[i].hand.push(deck[0]);
             deck.shift();
         }
@@ -618,7 +761,8 @@ function generateDeck() {
                     suit: cards.suits[i],
                     name: cards.values[j].name,
                     faceValue: cards.values[j].faceValue,
-                    numericValue: cards.values[j].value
+                    numericValue: cards.values[j].value,
+                    location: null
                 },
             );
             
