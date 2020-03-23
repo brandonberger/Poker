@@ -35,6 +35,26 @@ function test(type) {
         shuffleDeck();
         dealCards();
         findWinner();
+    } else if (type == 'two-pair') {
+        communityCards = [
+            {fullName: "Two of Spades", suit: "Spades", name: "Two", faceValue: "2", numericValue: 2, location: 'community'},
+            {fullName: "Ten of Hearts", suit: "Hearts", name: "Ten", faceValue: "10", numericValue: 10, location: 'community'},
+            {fullName: "Jack of Hearts", suit: "Hearts", name: "Eleven", faceValue: "J", numericValue: 11, location: 'community'},
+            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "Q", numericValue: 12, location: 'community'},
+            {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "K", numericValue: 13, location: 'community'}
+        ];
+        players[0].hand = [
+            {fullName: "Two of Hearts", suit: "Hearts", name: "Two", faceValue: "2", numericValue: 2, location: 'PlayersHand'},
+            {fullName: "Jack of Spades", suit: "Spades", name: "Jack", faceValue: "J", numericValue: 11, location: 'PlayersHand'},
+        ];
+        players[1].hand = [
+            {fullName: "Queen of Diamonds", suit: "Diamonds", name: "Queen", faceValue: "Q", numericValue: 12, location: 'PlayersHand'},
+            {fullName: "Jack of Spades", suit: "Spades", name: "Jack", faceValue: "J", numericValue: 11, location: 'PlayersHand'},
+        ];
+        paintCards(players[0].hand, 'yourHand');
+        paintCards(players[1].hand, 'otherPlayersHands');
+        paintCards(communityCards, 'communityCards');
+        findWinner();
     }
 }
 
@@ -223,9 +243,9 @@ function tieRoyalFlush(winners, communityCards) {
     return {winners, message: winningMessage};
 }
 
-function tieFlush(winners, communityCards) {
-    // console.log(winners);
-}
+// function tieFlush(winners, communityCards) {
+//     console.log(winners);
+// }
 
 function tieStraight(winners, communityCards) {
     highestStraight = 0;
@@ -251,12 +271,60 @@ function tieStraight(winners, communityCards) {
     }
 }
 
-// function tieStraightFlush(winners, communityCards) {
-//     var highestCard;
-//     for (var i = 0; i < winners.length; i++) {
-//         var hand
-//     }
-// }
+function tieTwoPair(winners, communityCards) {
+    var highestPairValue = 0;
+    var highestPairPlayers = [];
+
+    var highestPairOnePlayers = [];
+    var highestPairOneValue = 0;
+
+    var highestPairTwoPlayers = [];
+    var highestPairTwoValue = 0;
+
+
+    for (var i = 0; i < winners.length; i++) {
+        highestPair = getHighestCard(winners[i].winningCards.pairs);
+        if (highestPairOneValue < highestPair) {
+            highestPairOneValue = highestPair;
+            highestPairOnePlayers = [];
+            highestPairOnePlayers.push(winners[i]);
+        } else if (highestPairOneValue == highestPair) {
+            highestPairOnePlayers.push(winners[i]);
+        }
+    }
+
+
+    if (highestPairOnePlayers.length == 1) {
+        highestPairPlayers.push(highestPairOnePlayers[0]);
+    } else {
+        for (var i = 0; i < winners.length; i++) {
+            lowestPair = winners[i].winningCards.pairs.sort(sortCards)[winners[i].winningCards.pairs.length - 1];
+            if (highestPairTwoValue < lowestPair.value) {
+                highestPairTwoValue = lowestPair.value;
+                highestPairTwoPlayers.push(winners[i]);
+            } else if (highestPairTwoValue == lowestPair.value) {
+                highestPairTwoPlayers.push(winners[i]);
+            }
+        }
+
+        if (highestPairTwoPlayers.length == 1) {
+            highestPairPlayers.push(highestPairTwoPlayers[0]);
+        } else {
+            for (var i = 0; i < highestPairTwoPlayers.length; i++ ){
+                highestPairPlayers.push(highestPairTwoPlayers[i]);
+            }
+        }
+    }
+
+
+
+    if (highestPairPlayers.length == 1) {
+        var winningMessage = buildWinningMessage(highestPairPlayers, false, true);
+        return {highestPairPlayers, message: winningMessage};
+    } else {
+        return kickerCard(highestPairPlayers, 1, [0], null);
+    }
+}
 
 function kickerCard(winningPlayers, numberOfKickers, valuesToIgnore, suiteToIgnore) {
     var highestKicker = 0;
@@ -285,7 +353,7 @@ function kickerCard(winningPlayers, numberOfKickers, valuesToIgnore, suiteToIgno
         console.log('kicker matches');
         valuesToIgnore.push(highestKicker);
         highestKicker = 0;
-        kickerCard(highestKickerPlayers, numberOfKickers-1, valuesToIgnore, null);
+        return kickerCard(highestKickerPlayers, numberOfKickers-1, valuesToIgnore, null);
     }
 
     if (highestKickerPlayers.length > 1 && checkKickerInCommunity(highestKicker)) {
@@ -342,8 +410,6 @@ function tieBreaker(winners, communityCards) {
 
     var winType = winners[0].winningCards.type;
 
-    console.log(winType);
-
     if (winType == 'Pair') {
         return pairTie(winners, communityCards);
     } else if (winType == 'High Card') {
@@ -356,6 +422,8 @@ function tieBreaker(winners, communityCards) {
         return tieFlush(winners, communityCards);
     } else if (winType == 'Straight') {
         return tieStraight(winners, communityCards);
+    } else if (winType == 'Two Pair') {
+        return tieTwoPair(winners, communityCards);
     } else {
         return winners;
     }
@@ -556,7 +624,7 @@ function checkForFlush(cards) {
 
 function getHighestCard(cards) {
     cards = cards.sort(sortCards);
-    return cards[cards.length-1].numericValue;
+    return cards[0].value;
 }
 
 
@@ -589,8 +657,6 @@ function checkForAStraight(cards) {
             numberOfCardsInARow.push({match: 0, value: cards[i].numericValue, suit: cards[i].suit});
         }
     }
-
-    console.log(numberOfCardsInARow);
 
     if (numberOfCardsInARow.some(card => card.value === 2 && card.match == 1) &&
         numberOfCardsInARow.some(card => card.value === 3 && card.match == 1) &&
