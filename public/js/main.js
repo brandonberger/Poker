@@ -12,23 +12,46 @@ function test(type) {
         dealCards();
         findWinner();
     } else if (type == 'flush') {
+
+        players[0].hand = [
+            {fullName: "Two of Hearts", suit: "Hearts", name: "Two", faceValue: "2", numericValue: 2, location: 'PlayersHand'},
+            {fullName: "Two of Hearts", suit: "Hearts", name: "Two", faceValue: "2", numericValue: 2, location: 'PlayersHand'},
+        ];
+
+        players[1].hand = [
+            {fullName: "Queen of Diamonds", suit: "Diamonds", name: "Queen", faceValue: "Q", numericValue: 12, location: 'PlayersHand'},
+            {fullName: "Queen of Diamonds", suit: "Diamonds", name: "Queen", faceValue: "Q", numericValue: 12, location: 'PlayersHand'},
+        ];
+
         communityCards = [
-            {fullName: "Eight of Spades", suit: "Spades", name: "Eight", faceValue: "8", numericValue: 8, location: 'community'},
+            // {fullName: "Queen of Diamonds", suit: "Diamonds", name: "Queen", faceValue: "Q", numericValue: 12, location: 'community'},
+            {fullName: "9 of Spades", suit: "Spades", name: "Nine", faceValue: "9", numericValue: 9, location: 'community'},
             {fullName: "Ten of Spades", suit: "Spades", name: "Ten", faceValue: "10", numericValue: 10, location: 'community'},
-            {fullName: "Jack of Spades", suit: "Spades", name: "Eleven", faceValue: "11", numericValue: 11, location: 'community'},
-            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "12", numericValue: 12, location: 'community'},
-            {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "13", numericValue: 13, location: 'community'}
+            {fullName: "Jack of Spades", suit: "Spades", name: "Eleven", faceValue: "J", numericValue: 11, location: 'community'},
+            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "Q", numericValue: 12, location: 'community'},
+            {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "K", numericValue: 13, location: 'community'}
         ];
         paintCards(communityCards, 'communityCards');
         shuffleDeck();
         dealCards();
         findWinner();
     } else if (type == 'straight') {
+
+        players[0].hand = [
+            {fullName: "4 of Clubs", suit: "Clubs", name: "Four", faceValue: "4", numericValue: 4, location: 'PlayersHand'},
+            {fullName: "Queen of Spades", suit: "Spades", name: "Queen", faceValue: "Q", numericValue: 12, location: 'PlayersHand'},
+        ];
+
+        players[1].hand = [
+            {fullName: "Eight of Diamonds", suit: "Diamonds", name: "Eight", faceValue: "8", numericValue: 8, location: 'PlayersHand'},
+            {fullName: "Nine of Diamonds", suit: "Diamonds", name: "Nine", faceValue: "9", numericValue: 9, location: 'PlayersHand'},
+        ];
+
         communityCards = [
             {fullName: "Ace of Spades", suit: "Spades", name: "Ace", faceValue: "A", numericValue: 14, location: 'community'},
             {fullName: "Ten of Hearts", suit: "Hearts", name: "Ten", faceValue: "10", numericValue: 10, location: 'community'},
             {fullName: "Jack of Hearts", suit: "Hearts", name: "Eleven", faceValue: "J", numericValue: 11, location: 'community'},
-            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "Q", numericValue: 12, location: 'community'},
+            {fullName: "4 of Hearts", suit: "Hearts", name: "Four", faceValue: "4", numericValue: 4, location: 'community'},
             {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "K", numericValue: 13, location: 'community'}
         ];
         paintCards(communityCards, 'communityCards');
@@ -37,19 +60,19 @@ function test(type) {
         findWinner();
     } else if (type == 'two-pair') {
         communityCards = [
-            {fullName: "Two of Spades", suit: "Spades", name: "Two", faceValue: "2", numericValue: 2, location: 'community'},
-            {fullName: "Ten of Hearts", suit: "Hearts", name: "Ten", faceValue: "10", numericValue: 10, location: 'community'},
-            {fullName: "Jack of Hearts", suit: "Hearts", name: "Eleven", faceValue: "J", numericValue: 11, location: 'community'},
-            {fullName: "Queen of Spades", suit: "Spades", name: "Twelve", faceValue: "Q", numericValue: 12, location: 'community'},
+            {fullName: "Ace of Spades", suit: "Spades", name: "Ace", faceValue: "14", numericValue: 14, location: 'community'},
+            {fullName: "Ace of Hearts", suit: "Hearts", name: "Ace", faceValue: "14", numericValue: 14, location: 'community'},
+            {fullName: "Jack of Hearts", suit: "Hearts", name: "Jack", faceValue: "J", numericValue: 11, location: 'community'},
+            {fullName: "Jack of Spades", suit: "Spades", name: "Jack", faceValue: "J", numericValue: 11, location: 'community'},
             {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "K", numericValue: 13, location: 'community'}
         ];
         players[0].hand = [
             {fullName: "Two of Hearts", suit: "Hearts", name: "Two", faceValue: "2", numericValue: 2, location: 'PlayersHand'},
-            {fullName: "Jack of Spades", suit: "Spades", name: "Jack", faceValue: "J", numericValue: 11, location: 'PlayersHand'},
+            {fullName: "Four of Spades", suit: "Spades", name: "Four", faceValue: "4", numericValue: 4, location: 'PlayersHand'},
         ];
         players[1].hand = [
             {fullName: "Queen of Diamonds", suit: "Diamonds", name: "Queen", faceValue: "Q", numericValue: 12, location: 'PlayersHand'},
-            {fullName: "Jack of Spades", suit: "Spades", name: "Jack", faceValue: "J", numericValue: 11, location: 'PlayersHand'},
+            {fullName: "3 of Spades", suit: "Spades", name: "Three", faceValue: "3", numericValue: 3, location: 'PlayersHand'},
         ];
         paintCards(players[0].hand, 'yourHand');
         paintCards(players[1].hand, 'otherPlayersHands');
@@ -210,7 +233,7 @@ function highCard(winners, communityCards) {
         var message = buildWinningMessage(highestCardPlayers, null, null);
         return {highestCardPlayers, message: message};
     } else {
-        return kickerCard(highestCardPlayers, 4, highestCard, null);
+        return kickerCard(highestCardPlayers, 4, [highestCard], null);
     }
 }
 
@@ -243,9 +266,94 @@ function tieRoyalFlush(winners, communityCards) {
     return {winners, message: winningMessage};
 }
 
-// function tieFlush(winners, communityCards) {
-//     console.log(winners);
-// }
+function tieFlush(winners, communityCards) {
+    var winningPlayerFlushCompare = [];
+    for (var i = 0; i < winners.length; i++ ) {
+        winningPlayerFlushCompare.push({id: winners[i].id, flushCards: getFiveHighestCards(winners[i].winningCards.cards)});
+    }
+
+    var singleWinner = false;
+    var winningFlushPlayers = [];
+    var count = 0;
+
+    while (singleWinner == false && count < 5) {
+        winningPlayerFlushCompare = findPlayerWithHighestFlush(winningPlayerFlushCompare);
+        if (winningPlayerFlushCompare.length == 1) {
+            singleWinner = true;
+            winningFlushPlayers = [];
+            winningFlushPlayers.push(winningPlayerFlushCompare);
+        } else {
+            winningFlushPlayers = [];
+            winningFlushPlayers.push(winningPlayerFlushCompare);
+            winningPlayerFlushCompare = popHighestFlushCard(winningPlayerFlushCompare)
+        }
+
+        count++;
+    }
+
+    var winnerIds = [];
+    for (var i = 0; i < winningFlushPlayers[0].length; i++) {
+        winnerIds.push(winningFlushPlayers[0][i].id);
+    }
+
+    var winningPlayerObjects = [];
+    for (var i = 0; i < winnerIds.length; i++) {
+        var result = players.filter(obj => {
+            return obj.id === winnerIds[i];
+        });
+        winningPlayerObjects.push(result[0]);
+    }
+
+    
+    if (singleWinner == false && count == 5) {
+        console.log('split');
+        var winningMessage = buildWinningMessage(winningPlayerObjects, false, true);
+        return {winningPlayerObjects, message: winningMessage};
+    } else {
+        var winningMessage = buildWinningMessage(winningPlayerObjects, false, false);
+        return {winningPlayerObjects, message: winningMessage};
+    }
+
+
+}
+
+function getFiveHighestCards(cards) {
+    var sortedCards = cards.sort(sortCardsDesc);
+    for (var i = sortedCards.length; i > 5; i--) {
+        sortedCards.pop();
+    }
+    return sortedCards;
+}
+
+function popHighestFlushCard(players) {
+    for (var i = 0; i < players.length; i++) {
+        players[i].flushCards.shift();
+    }
+    return players;
+}
+
+function findPlayerWithHighestFlush(flushWinners) {
+
+    var highestFlushValue = 0;
+    var highestFlushPlayers = [];
+    for (var i = 0; i < flushWinners.length; i++) {
+        highestCard = flushWinners[i].flushCards[0].numericValue;
+        if (highestFlushValue < highestCard) {
+            highestFlushValue = highestCard;
+            highestFlushPlayers = [];
+            highestFlushPlayers.push(flushWinners[i]);
+        } else if (highestFlushValue == highestCard) {
+            highestFlushPlayers.push(flushWinners[i]);
+        }
+    }
+
+    var winningPlayerFlushCompare2 = [];
+    for (var i = 0; i < highestFlushPlayers.length; i++) {
+        winningPlayerFlushCompare2.push({id: highestFlushPlayers[i].id, flushCards: highestFlushPlayers[i].flushCards});
+    }
+
+    return winningPlayerFlushCompare2;
+}
 
 function tieStraight(winners, communityCards) {
     highestStraight = 0;
@@ -319,10 +427,19 @@ function tieTwoPair(winners, communityCards) {
 
 
     if (highestPairPlayers.length == 1) {
+        console.log(highestPairPlayers);
         var winningMessage = buildWinningMessage(highestPairPlayers, false, true);
         return {highestPairPlayers, message: winningMessage};
     } else {
-        return kickerCard(highestPairPlayers, 1, [0], null);
+        var valuesToIgnore = [];
+        for (var i = 0; i < highestPairPlayers.length; i++) {
+            for (var j = 0; j < highestPairPlayers[i].winningCards.pairs; j++) {
+                valuesToIgnore.push(highestPairPlayers[i].winningCards.pairs[j].value);
+            } 
+        }
+
+        console.log(kickerCard(highestPairPlayers, 1, valuesToIgnore, null));
+        return kickerCard(highestPairPlayers, 1, valuesToIgnore, null);
     }
 }
 
@@ -371,7 +488,7 @@ function kickerCard(winningPlayers, numberOfKickers, valuesToIgnore, suiteToIgno
 
 function buildWinningMessage(players, kicker, split) {
     var message;
-    
+
     if (players.length == 1) {
         message = players[0].name + ' wins with a ' + players[0].winningCards.type;
         if (kicker) {
@@ -490,12 +607,8 @@ function searchForWinningCards(cards, playerHand) {
 
     // TODO: Need to pass in the cards not the highestValue
     // well, maybe.
-
-    // This actually doesn't work, need to check if the straight is all of the same suit. 
-    // It is possible that there is a straight and a flush but not a straight flush
     if (flush && straight.highestCard == 14 && straightFlush) {
         return {type: 'Royal Flush', handCode: 10, highestCard: straight.highestCard};
-    // It is possible that there is a straight and a flush but not a straight flush
     } else if (flush && straight && straightFlush) {
         return {type: 'Straight Flush', handCode: 9, highestCard: straight.highestCard};
     } else if (fourOfAKind) {
@@ -612,13 +725,14 @@ function checkForFlush(cards) {
         return false;
     }
 
+    var finalCards = [];
     for (var i = 0; i < cards.length; i++) {
-        if (cards[i].suit != suitToSearchFor) {
-            cards.splice(i, 1);
+        if (cards[i].suit == suitToSearchFor) {
+            finalCards.push(cards[i]);
         }
     }
 
-    return {type: 'Flush', matchedCards: cards, suit: suitToSearchFor};
+    return {type: 'Flush', matchedCards: finalCards, suit: suitToSearchFor};
 }   
 
 
@@ -763,6 +877,20 @@ function sortCards(a, b) {
     return comparison;
 }
 
+function sortCardsDesc(a, b) {
+    const cardA = a.numericValue;
+    const cardB = b.numericValue;
+
+    let comparison = 0;
+    if (cardA < cardB) {
+        comparison = 1;
+    } else if (cardA > cardB) {
+        comparison = -1;
+    }
+
+    return comparison;
+}
+
 var communityCardDeals = 0;
 var communityCards = [];
 
@@ -893,6 +1021,8 @@ function shuffle(a) {
 
 
 function autoPlay() {
+    shuffleDeck();
+    shuffleDeck();
     shuffleDeck();
     dealCards();
     for (var i = 0; i < 3; i++) {
