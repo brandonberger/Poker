@@ -2,14 +2,14 @@
     display: inline-block;
 }
 
-.card {
+/* .card {
     height: 200px;
     width: 140px;
     border: 1px solid black;
     border-radius: 5px;
     display: inline-block;
     margin: 10px;
-}
+} */
 
 
 .highlight {
@@ -18,13 +18,18 @@
 
 .card .topValue {
     padding: 5px;
+    text-align: left;
+    font-size: 8px;
 }
 
 
 .suit-icon {
-    width: 20px;
-    background-size: cover;
+    width: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     height: 20px;
+
 }
 
 .Hearts-icon {
@@ -52,4 +57,375 @@
 
 .show {
     display: block !important;
+}
+
+.poker-room {
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+}
+
+.poker-table {
+    height: 500px;
+    width: 1250px;
+    background-color: green;
+    border: solid 20px #333;
+    margin: 0 auto;
+    border-radius: 300px;
+    position: relative;
+    margin-top: 100px;
+    margin-bottom: 100px;
+}
+
+.button-container {
+    width:100%;
+    height:100px;
+    background-color: #3498db;
+}
+
+.button-container .buttons {
+    text-align: center;
+}
+
+.button-container .buttons button {
+    width: 120px;
+    height:40px;
+    color: white;
+    border: none;
+    margin: 30px;
+    font-size:14px;
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.buttons .fold {
+    background-color:#34495e;
+}
+
+.buttons .check {
+    background-color:#f39c12;
+}
+
+.buttons .call {
+    background-color:#2ecc71;
+}
+
+.buttons .raise {
+    background-color:#8e44ad;
+}
+
+.poker-table .seat {
+    height: 100px;
+    width: 100px;
+    /* background-color: red; */
+    position: absolute;
+}
+
+.poker-table .seat[dealer="true"] .name::after {
+    font-size:10px;
+    content: " - Dealer";
+}
+
+.poker-table .player {
+    position: relative;
+    height:100%;
+    text-align: center;
+}
+
+
+.poker-table .player .name {
+    color: white;
+    font-family: sans-serif;
+    padding: 5px 0;
+    background-color: #3498db;
+    border-radius: 50px;
+}
+
+.poker-table .player .money {
+    color: white;
+    font-family: sans-serif;
+    margin-top:5px;
+    width:50%;
+    padding: 5px 0;
+    background-color: #969696;
+    border-radius: 50px;
+    font-size:12px;
+    float:right;
+}
+
+
+#community-container {
+    position: absolute;
+    left: 50%;
+    margin-left: -100.5px;
+    top:20%;
+}
+
+#pot-container {
+    position: absolute;
+    left: 40%;
+    top:40%;
+    width: 80px;
+}
+
+.pot-amount {
+    padding-bottom:5px;
+    text-align: center;
+    color: white;
+    font-family: sans-serif;
+}
+
+#community-container .card {
+    margin: 0 5px;
+}
+
+.card {
+    height: 45px;
+    width: 25px;
+    border: 1px solid black;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 0px 2px;
+    background-color: white;
+    font-size: 5px;
+}
+
+.chip div {
+    width: 10px;
+    margin: 0 auto;
+    margin-top: 12%;
+    text-align: center;
+    border-style: dashed;
+    border-width: 1px;
+    border-color: white;
+    border-radius: 100%;
+    padding: 2px 0px;
+}
+
+
+.chip {
+    height: 16px;
+    width: 16px;
+    border-radius:100%;
+    border: solid 2px black;
+    font-size: 4px;
+    vertical-align: middle;
+    position: relative;
+    color: white;
+    font-family: sans-serif;
+    display: inline-block;
+    font-weight: 100;
+}
+
+.chip.white {
+    background-color: #ecf0f1;
+    color: #333333;
+}
+
+.chip.white div {
+    border-color: #333333 !important;
+}
+
+.chip.red {
+    background-color: #c0392b;
+}
+
+.chip.blue {
+    background-color:#2980b9;
+}
+
+.chip.green {
+    background-color: #27ae60;
+}
+
+.chip.black {
+    background-color: #333333;
+}
+.poker-table .seat.empty {
+    /* display:none; */
+}
+
+
+/* CHIPS */
+
+.poker-table .player .chips {
+    position: absolute;
+    width: 50px;
+}
+
+.poker-table .seat.seat-one .player .chips {
+    right: 175px;
+    top: 10px;
+    transform: rotate(-120deg);
+}
+
+.poker-table .seat.seat-two .player .chips {
+    right: 100px;
+    top: -60px;
+    transform: rotate(-90deg);
+}
+
+.poker-table .seat.seat-three .player .chips {
+    right: 60px;
+    top: -100px;
+    transform: rotate(-45deg);
+}
+
+.poker-table .seat.seat-four .player .chips {
+    right: -50px;
+    top: -60px;
+}
+
+.poker-table .seat.seat-five .player .chips {
+    right: -50px;
+    top: -60px;
+}
+
+.poker-table .seat.seat-six .player .chips {
+    right: -50px;
+    top: -60px;
+}
+
+.poker-table .seat.seat-seven .player .chips {
+    right: -50px;
+    top: -60px;
+}
+
+.poker-table .seat.seat-eight .player .chips {
+    right: -100px;
+    top: -15px;
+    transform: rotate(45deg);
+}
+
+.poker-table .seat.seat-nine .player .chips {
+    right: -60px;
+    top: 60px;
+    transform: rotate(90deg);
+}
+
+.poker-table .seat.seat-ten .player .chips {
+    right: -25px;
+    top: 100px;
+    transform: rotate(120deg);
+}
+
+
+/* CARDS */
+
+.poker-table .seat.seat-one .player .cards {
+    position: absolute;
+    right: 100px;
+    top:60px;
+    width: 80px;
+    transform: rotate(-120deg);
+}
+
+.poker-table .seat.seat-two .player .cards {
+    position: absolute;
+    right: 100px;
+    width: 80px;
+    transform: rotate(-90deg);
+}
+
+.poker-table .seat.seat-three .player .cards {
+    position: absolute;
+    right: 100px;
+    top:-60px;
+    width: 80px;
+    transform: rotate(-45deg);
+}
+
+.poker-table .seat.seat-four .player .cards {
+    position: absolute;
+    right: 10px;
+    top:-60px;
+    width: 80px;
+}
+
+.poker-table .seat.seat-five .player .cards {
+    position: absolute;
+    right: 10px;
+    top:-60px;
+    width: 80px;
+}
+.poker-table .seat.seat-six .player .cards {
+    position: absolute;
+    right: 10px;
+    top:-60px;
+    width: 80px;
+}
+.poker-table .seat.seat-seven .player .cards {
+    position: absolute;
+    right: 10px;
+    top:-60px;
+    width: 80px;
+}
+.poker-table .seat.seat-eight .player .cards {
+    position: absolute;
+    left: 100px;
+    top:-60px;
+    transform: rotate(45deg);
+    width: 80px;
+}
+
+.poker-table .seat.seat-nine .player .cards {
+    position: absolute;
+    left: 100px;
+    transform: rotate(90deg);
+    width: 80px;
+}
+
+.poker-table .seat.seat-ten .player .cards {
+    position: absolute;
+    left: 100px;
+    top:60px;
+    transform: rotate(120deg);
+    width: 80px;
+}
+
+.poker-table .seat.seat-one {
+    right: 0%;
+}
+
+.poker-table .seat.seat-two {
+    right: -50px;
+    top: 40%;
+}
+
+.poker-table .seat.seat-three {
+    right: 0px;
+    top: 80%;
+}
+
+.poker-table .seat.seat-four {
+    right: 20%;
+    top: 95%;
+}
+
+.poker-table .seat.seat-five {
+    right: 37.5%;
+    top: 95%;
+}
+
+.poker-table .seat.seat-six {
+    left: 37.5%;
+    top: 95%;
+}
+
+.poker-table .seat.seat-seven {
+    left: 20%;
+    top: 95%;
+}
+
+.poker-table .seat.seat-eight {
+    left: 0px;
+    top: 80%;
+}
+
+.poker-table .seat.seat-nine {
+    left: -50px;
+    top: 40%;
 }

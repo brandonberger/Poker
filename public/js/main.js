@@ -1,3 +1,37 @@
+// Rules
+/**
+ * 
+ * 2 - 10 Players
+ * 1 Player is dealer
+ * Left of the dealer - small and big blind ( to start pot )
+ * PLayer left of the BB is first 
+ * Options: Call, Raise, Fold, Check
+ * 
+ * After first round of betting,
+ * A FLOP is put down ( 3 cards )
+ * First player in this round is the person left of the dealer
+ * 
+ * After second
+ * THE TURN is put down ( one more card)
+ * 
+ * Final round: THe RIVER
+ * 5th card
+ * 
+ * After all
+ * Showdown
+ * Finds winner
+ * 
+ * Dealers more clockwise in next game
+ * 
+ * 
+ * 
+ * Big blind = buy in / 100
+ * Small blind = big blind / 2
+ * 
+ */
+
+
+/** TESTS */
 function test(type) {
     if (type == 'royal-flush') {
         communityCards = [
@@ -7,9 +41,18 @@ function test(type) {
             {fullName: "King of Spades", suit: "Spades", name: "Thirteen", faceValue: "13", numericValue: 13, location: 'community'},
             {fullName: "Ace of Spades", suit: "Spades", name: "Ace", faceValue: "14", numericValue: 14, location: 'community'}
         ];
+
+        players[1].hand = [
+            {fullName: "Six of Clubs", suit: "Clubs", name: "Six", faceValue: "6", numericValue: 6, location: 'PlayersHand'},
+            {fullName: "Ace of Diamonds", suit: "Diamonds", name: "Ace", faceValue: "A", numericValue: 14, location: 'PlayersHand'},
+        ];
+        players[0].hand = [
+            {fullName: "6 of Diamonds", suit: "Diamonds", name: "Six", faceValue: "6", numericValue: 6, location: 'PlayersHand'},
+            {fullName: "Ace of Hearts", suit: "Hearts", name: "Ace", faceValue: "A", numericValue: 14, location: 'PlayersHand'},
+        ];
+        paintCards(players[0].hand, 'yourHand');
+        paintCards(players[1].hand, 'otherPlayersHands');
         paintCards(communityCards, 'communityCards');
-        shuffleDeck();
-        dealCards();
         findWinner();
     } else if (type == 'flush') {
 
@@ -161,96 +204,18 @@ function test(type) {
     }
 }
 
-const cards = {
-    suits: ['Hearts', 'Spades', 'Diamonds', 'Clubs'],
-    values: [
-        {
-            name: 'Ace', 
-            faceValue: 'A',
-            value: 14
-        }, 
-        {
-            name: 'Two', 
-            faceValue: '2',
-            value: 2
-        }, 
-        {
-            name: 'Three', 
-            faceValue: '3',
-            value: 3
-        }, 
-        {
-            name: 'Four', 
-            faceValue: '4',
-            value: 4
-        }, 
-        {
-            name: 'Five', 
-            faceValue: '5',
-            value: 5
-        }, 
-        {
-            name: 'Six', 
-            faceValue: '6',
-            value: 6
-        }, 
-        {
-            name: 'Seven', 
-            faceValue: '7',
-            value: 7
-        }, 
-        {
-            name: 'Eight', 
-            faceValue: '8',
-            value: 8
-        }, 
-        {
-            name: 'Nine', 
-            faceValue: '9',
-            value: 9
-        }, 
-        {
-            name: 'Ten', 
-            faceValue: '10',
-            value: 10
-        }, 
-        {
-            name: 'Jack', 
-            faceValue: 'J',
-            value: 11
-        }, 
-        {
-            name: 'Queen', 
-            faceValue: 'Q',
-            value: 12
-        }, 
-        {
-            name: 'King', 
-            faceValue: 'K',
-            value: 13
-        }
-    ]
+function autoPlay() {
+    setUpTable();
+    shuffleDeck();
+    shuffleDeck();
+    shuffleDeck();
+    dealCards();
+    for (var i = 0; i < 3; i++) {
+        dealCommunityCards();
+    }
+    findWinner();
 }
 
-const currentPlayerId = 1;
-const deck = generateDeck();
-
-var players = [
-    {
-        id: 1,
-        name: 'Player 1',
-        hand: [],
-        chips: 0,
-        winningCards: []
-    },
-    {
-        id: 2,
-        name: 'Player 2',
-        hand: [],
-        chips: 0,
-        winningCards: []
-    }
-];
 
 function findFinalHands() {
     for (var i = 0; i < players.length; i++) {
@@ -746,7 +711,6 @@ function buildWinningMessage(players, kicker, split) {
     return message;
 }
 
-
 function checkKickerInCommunity(valueToFind) {
     for (var i = 0; i < communityCards.length; i++) {
         if (communityCards[i].numericValue == valueToFind) {
@@ -813,14 +777,13 @@ function tieBreaker(winners, communityCards) {
 function searchForWinningCards(cards, playerHand) {
 
     cards = cards.sort(sortCards);
-    var straight = checkForAStraight(cards);
+    var flush = checkForFlush(cards);
 
+    var straight = checkForAStraight(cards, flush.suit);
     if (straight) {
         straight.matchedCards = validateStraight(straight.matchedCards);
         straight.highestCard = straight.matchedCards[straight.matchedCards.length-1].value;
     }
-
-    var flush = checkForFlush(cards);
 
     var straightFlush = false;
     if (straight && flush) {
@@ -946,7 +909,6 @@ function checkForSameKinds(cards) {
     return sameKinds;
 }
 
-
 function sortSameKinds(a,b) {
     if (a.occurrences < b.occurrences) return 1;
     if (a.occurrences > b.occurrences) return -1;
@@ -954,7 +916,6 @@ function sortSameKinds(a,b) {
     if (a.value < b.value) return 1;
     if (a.value > b.value) return -1;
 }
-
 
 function checkForFlush(cards) {
 
@@ -1002,19 +963,20 @@ function checkForFlush(cards) {
     return {type: 'Flush', matchedCards: finalCards, suit: suitToSearchFor};
 }   
 
-
 function getHighestCard(cards) {
     cards = cards.sort(sortCards);
     return cards[0].value;
 }
 
-
-function removeDuplicateValues(cards) {
+function removeDuplicateValues(cards, suitToKeep = null) {
     var cardValues = [];
-    loop1 : for (var i = 0; i < cards.length; i++) {
 
+    loop1 : for (var i = 0; i < cards.length; i++) {
         for (var j = 0; j < cardValues.length; j++) {
             if (cardValues[j].numericValue == cards[i].numericValue) {
+                if (cards[i].suit == suitToKeep) {
+                    cardValues[j].suit = suitToKeep;
+                }
                 continue loop1;
             }
         }
@@ -1024,9 +986,9 @@ function removeDuplicateValues(cards) {
     return cardValues;
 }
 
-function checkForAStraight(cards) {
+function checkForAStraight(cards, suitToKeep = null) {
 
-    cards = removeDuplicateValues(cards);
+    cards = removeDuplicateValues(cards, suitToKeep);
     var numberOfCardsInARow = [];
 
     for (var i = 0; i < cards.length; i++) {
@@ -1111,7 +1073,6 @@ function checkForAStraight(cards) {
     }
 }
 
-
 function sortStraight(a, b) {
     let comparison = 0;
     if (a.value > b.value) {
@@ -1151,8 +1112,242 @@ function sortCardsDesc(a, b) {
     return comparison;
 }
 
+
+
+/**
+ * GAME SETUP
+ */
+
+ 
+function setUpTable() {
+    paintToSeat();
+    paintCardsToSeat();
+}
+
+function calculateChips(chips) {
+    var total = 0;
+    total += (chips.black) ? pokerChips.black * chips.black : 0;
+    total += (chips.green) ? pokerChips.green * chips.green : 0;
+    total += (chips.red) ? pokerChips.red * chips.red : 0;
+    total += (chips.blue) ? pokerChips.blue * chips.blue : 0;
+    total += (chips.white) ? pokerChips.white * chips.white : 0;
+    
+    return total;
+}
+
+
+const cards = {
+    suits: ['Hearts', 'Spades', 'Diamonds', 'Clubs'],
+    values: [
+        {
+            name: 'Ace', 
+            faceValue: 'A',
+            value: 14
+        }, 
+        {
+            name: 'Two', 
+            faceValue: '2',
+            value: 2
+        }, 
+        {
+            name: 'Three', 
+            faceValue: '3',
+            value: 3
+        }, 
+        {
+            name: 'Four', 
+            faceValue: '4',
+            value: 4
+        }, 
+        {
+            name: 'Five', 
+            faceValue: '5',
+            value: 5
+        }, 
+        {
+            name: 'Six', 
+            faceValue: '6',
+            value: 6
+        }, 
+        {
+            name: 'Seven', 
+            faceValue: '7',
+            value: 7
+        }, 
+        {
+            name: 'Eight', 
+            faceValue: '8',
+            value: 8
+        }, 
+        {
+            name: 'Nine', 
+            faceValue: '9',
+            value: 9
+        }, 
+        {
+            name: 'Ten', 
+            faceValue: '10',
+            value: 10
+        }, 
+        {
+            name: 'Jack', 
+            faceValue: 'J',
+            value: 11
+        }, 
+        {
+            name: 'Queen', 
+            faceValue: 'Q',
+            value: 12
+        }, 
+        {
+            name: 'King', 
+            faceValue: 'K',
+            value: 13
+        }
+    ]
+};
+
+const pokerChips = {
+    black: 100,
+    green: 20,
+    blue: 10,
+    red: 5, 
+    white: 1
+};
+
+
+var players = [];
+const currentPlayerId = 1;
+const buyInCost = 200;
+const bigBlind = buyInCost / 100;
+const smallBlind = bigBlind  / 2;
+var currentRound = 0;
+var currentDealerSeat = 0;
+var pot = 0;
+
+function buyInTest(seatId, id, name) {
+    players.push({
+        id: id,
+        name: name,
+        hand: [],
+        chips: {
+            black: 1,
+            green: 2,
+            blue: 3,
+            red: 4,
+            white: 10
+        },
+        winningCards: [],
+        seat: seatId
+    });
+
+    var seat = document.querySelectorAll('[data-seat="'+seatId+'"]');
+    var buyInBtn = seat[0].getElementsByClassName('buyInBtn');
+    buyInBtn[0].remove();
+    setUpTable();
+}
+
+function buyIn(seatId) {
+    var id = prompt("Id");
+    var name = prompt("Name");
+
+    players.push({
+        id: id,
+        name: name,
+        hand: [],
+        chips: {
+            black: 1,
+            green: 2,
+            blue: 3,
+            red: 4,
+            white: 10
+        },
+        winningCards: [],
+        seat: seatId
+    });
+
+    var seat = document.querySelectorAll('[data-seat="'+seatId+'"]');
+    var buyInBtn = seat[0].getElementsByClassName('buyInBtn');
+    buyInBtn[0].remove();
+    setUpTable();
+}
+
+function startGame() {
+    buyInTest(1, 1, 'Bdon');
+    buyInTest(2, 2, 'Jess');
+    buyInTest(3, 3, 'Dan');
+    buyInTest(4, 4, 'Eeema');
+    buyInTest(5, 5, 'Dune');
+    buyInTest(6, 6, 'Donald Trump');
+    buyInTest(7, 7, 'Joe Exotic');
+    buyInTest(8, 8, 'Dr. Fauci');
+    buyInTest(9, 9, 'COVID-19');
+    buyInTest(10, 10, 'Ranchel');
+    if (players.length < 3) {
+        return 'Not Enough Players';
+    } 
+
+    shuffleDeck();
+
+    assignDealer();
+    dealCards();
+    triggerSmallBlind();
+    triggerBigBlind();
+}
+
+
+function triggerSmallBlind() {
+    var smallBlindSeat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+1)+'"');
+    var smallBlindPlayerId = smallBlindSeat[0].getAttribute('player-table-id');
+    var smallBlindPlayer = players[smallBlindPlayerId];
+    smallBlindPlayer.chips.white = smallBlindPlayer.chips.white - 1;
+    addToPot([{color: 'white', amount: 1}]);
+    paintToSeat();
+}
+
+function triggerBigBlind() {
+    var bigBlindSeat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+2)+'"');
+    var bigBlindPlayerId = bigBlindSeat[0].getAttribute('player-table-id');
+    var bigBlindPlayer = players[bigBlindPlayerId];
+    bigBlindPlayer.chips.white = bigBlindPlayer.chips.white - 2;
+    addToPot([{color: 'white', amount: 2}]);
+    paintToSeat();
+}
+
+function addToPot(chips) {
+    var totalToAdd = 0;
+    for (var i = 0; i < chips.length; i++) {
+        color = chips[i].color;
+        amount = chips[i].amount;
+        totalToAdd += calculateChips({[color]: amount});
+    }
+
+    pot = pot + totalToAdd;
+    var potText = document.getElementsByClassName('pot-amount');
+    potText[0].textContent = '$'+pot;
+}
+
+function assignDealer() {
+    var seat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+1)+'"]');
+    seat[0].setAttribute('dealer', 'true');
+    currentDealerSeat++;
+}
+
+
+// PAINTING
+
+const deck = generateDeck();
 var communityCardDeals = 0;
 var communityCards = [];
+
+
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
 
 function dealCommunityCards() {
     // Burn card
@@ -1175,7 +1370,7 @@ function dealCommunityCards() {
     resetCards('communityCards');
     paintCards(deck, 'deck');
     paintCards(communityCards, 'communityCards');
-
+    paintCardsToCommunity();
 }
 
 function dealCards() {
@@ -1190,6 +1385,7 @@ function dealCards() {
     paintOtherPlayersHands();
     resetCards('deck');
     paintCards(deck, 'deck');
+    paintCardsToSeat();
 }
 
 function shuffleDeck() {
@@ -1223,8 +1419,8 @@ function generateDeck() {
         }
     }
     return deck;
-}
 
+}
 function paintYourHand() {
     resetCards('yourHand');
     for (var i = 0; i < players.length; i++) {
@@ -1271,22 +1467,61 @@ function paintCards(cardsToPaint, elementToPaint) {
     }
 }
 
-function shuffle(a) {
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+function paintToSeat() {
+    for (var i = 0; i < players.length; i++) {
+        var seat = document.querySelectorAll('[data-seat="'+(players[i].seat)+'"]');
+        var playerName = seat[0].getElementsByClassName('name');
+        var playerMoney = seat[0].getElementsByClassName('money');
+        seat[0].setAttribute('player-table-id', i);
+        playerName[0].textContent = players[i].name;
+        playerMoney[0].textContent = '$'+calculateChips(players[i].chips);
     }
-    return a;
 }
 
+function paintCardsToSeat() {
+    for (var i = 0; i < players.length; i++) {
+        var seat = document.querySelectorAll('[data-seat="'+(players[i].seat)+'"]');
+        var handContainer = seat[0].getElementsByClassName('cards');
 
-function autoPlay() {
-    shuffleDeck();
-    shuffleDeck();
-    shuffleDeck();
-    dealCards();
-    for (var i = 0; i < 3; i++) {
-        dealCommunityCards();
+        for (var j = 0; j < players[i].hand.length; j++) {
+            handContainer[0].appendChild(buildCard(players[i].hand[j]));
+        }
     }
-    findWinner();
+}
+
+function paintCardsToCommunity() {
+
+    if (communityCards.length > 3) {
+        resetCards('community-cards');
+    }
+
+    var communityContainer = document.getElementById('community-container');
+    var communityCardsContainer = communityContainer.getElementsByClassName('community-cards');
+
+    for (var i = 0; i < communityCards.length; i++) {
+        communityCardsContainer[0].appendChild(buildCard(communityCards[i]));
+    }
+}
+
+function buildCard(cardObj) {
+    var card = document.createElement('div');
+    card.dataset.fullName = cardObj.fullName;
+    card.dataset.suit = cardObj.suit;
+    card.dataset.name = cardObj.name;
+    card.dataset.numericValue = cardObj.numericValue;
+    card.className = 'card';
+
+    var topValue = document.createElement('div');
+    topValue.className = 'topValue';
+    var topValueText = document.createTextNode(cardObj.faceValue);
+
+    topValue.appendChild(topValueText);
+    card.appendChild(topValue);
+
+    var topSuitIcon = document.createElement('div');
+    topSuitIcon.className = cardObj.suit + '-icon suit-icon';
+
+    card.appendChild(topSuitIcon);
+
+    return card;
 }
