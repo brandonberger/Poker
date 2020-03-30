@@ -157,6 +157,19 @@
 }
 
 
+#event-banner {
+    background-color:#2c3e50;
+    width:100%;
+}
+
+#event-banner .message {
+    font-size:17px;
+    color: white;
+    font-family: sans-serif;
+    padding: 5px;
+}
+
+
 #community-container {
     position: absolute;
     left: 50%;

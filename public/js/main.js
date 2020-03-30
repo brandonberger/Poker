@@ -1272,6 +1272,15 @@ function buyIn(seatId) {
     setUpTable();
 }
 
+var game = {
+    roundOne: {
+        maxBet: null
+    },
+    players: []
+}
+
+var pause = false;
+
 function startGame() {
     buyInTest(1, 1, 'Bdon');
     buyInTest(2, 2, 'Jess');
@@ -1287,19 +1296,99 @@ function startGame() {
         return 'Not Enough Players';
     } 
 
-    shuffleDeck();
+    game.players.push(players);
 
+    shuffleDeck();
     assignDealer();
     dealCards();
-    triggerSmallBlind();
-    triggerBigBlind();
+    game.roundOne.maxBet = bigBlind;
+
+    continueRound();
+}
+
+var currentPlayerTurnId = 1;
+function continueRound() {
+    while (!pause) {
+        if (currentDealerSeat == currentPlayerTurnId) {
+            console.log('Dealer');
+            currentPlayerTurnId++;
+            continue;
+        } else if (currentDealerSeat+1 == currentPlayerTurnId) {
+            triggerSmallBlind();
+            console.log('small blind');
+            currentPlayerTurnId++;
+            continue;
+        } else if (currentDealerSeat+2 == currentPlayerTurnId) {
+            triggerBigBlind();
+            console.log('big blind');
+            currentPlayerTurnId++;
+            continue;
+        } else {
+            console.log(currentPlayerTurnId);
+            promptPlayer(findPlayerInGameById(currentPlayerTurnId));
+            currentPlayerTurnId++;
+            continue;
+        }
+    }
+}
+
+function promptPlayer(player) {
+    pause = true;
+    setEventBannerMessage( player.name + '\'s Turn');
+    var controlPanel = document.getElementById('control-panel');
+    controlPanel.setAttribute('player-id', player.id);
+}
+
+// TODO:
+// Do not remove the player from the game, mark them as folded.
+// Skip player if folded.
+// EZPZ
+function fold() {
+    var controlPanel = document.getElementById('control-panel');
+    playerId = controlPanel.getAttribute('player-id');
+    player = findPlayerInGameById(playerId);
+    // removePlayerFromGameById(playerId);
+    setEventBannerMessage(player.name + ' Folded');
+    updateGame();
+}
+
+function check() {
+
+}
+
+function call() {
+
+}
+
+function raise() {
+
+}
+
+function findPlayerInGameById(id) {
+    var playerObj = game.players[0].filter(obj => {
+        return obj.id == id
+    });
+    return playerObj[0];
+}
+
+function removePlayerFromGameById(id) {
+    id = parseInt(id);
+    var removeIndex = game.players[0].map(function(item) { return item.id; }).indexOf(id);
+    game.players[0].splice(removeIndex, 1);
+}
+
+
+function setEventBannerMessage(message) {
+    var eventBanner = document.getElementById('event-banner');
+    var eventBannerMessage = eventBanner.getElementsByClassName('message');
+    eventBannerMessage[0].textContent = message;
 }
 
 
 function triggerSmallBlind() {
     var smallBlindSeat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+1)+'"');
     var smallBlindPlayerId = smallBlindSeat[0].getAttribute('player-table-id');
-    var smallBlindPlayer = players[smallBlindPlayerId];
+    var smallBlindPlayer = findPlayerInGameById(smallBlindPlayerId);
     smallBlindPlayer.chips.white = smallBlindPlayer.chips.white - 1;
     addToPot([{color: 'white', amount: 1}]);
     paintToSeat();
@@ -1308,7 +1397,7 @@ function triggerSmallBlind() {
 function triggerBigBlind() {
     var bigBlindSeat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+2)+'"');
     var bigBlindPlayerId = bigBlindSeat[0].getAttribute('player-table-id');
-    var bigBlindPlayer = players[bigBlindPlayerId];
+    var bigBlindPlayer = findPlayerInGameById(bigBlindPlayerId);
     bigBlindPlayer.chips.white = bigBlindPlayer.chips.white - 2;
     addToPot([{color: 'white', amount: 2}]);
     paintToSeat();
@@ -1335,6 +1424,37 @@ function assignDealer() {
 
 
 // PAINTING
+
+
+function updateGame() {
+    resetHands();
+    updateGameSeats();
+    updateGameCards();
+    pause = false;
+    continueRound();
+}
+
+function updateGameSeats() {
+    for (var i = 0; i < game.players[0].length; i++) {
+        var seat = document.querySelectorAll('[data-seat="'+(game.players[0][i].seat)+'"]');
+        var playerName = seat[0].getElementsByClassName('name');
+        var playerMoney = seat[0].getElementsByClassName('money');
+        seat[0].setAttribute('player-table-id', i);
+        playerName[0].textContent = game.players[0][i].name;
+        playerMoney[0].textContent = '$'+calculateChips(game.players[0][i].chips);
+    }
+}
+
+function updateGameCards() {
+    for (var i = 0; i < game.players[0].length; i++) {
+        var seat = document.querySelectorAll('[data-seat="'+(game.players[0][i].seat)+'"]');
+        var handContainer = seat[0].getElementsByClassName('cards');
+
+        for (var j = 0; j < game.players[0][i].hand.length; j++) {
+            handContainer[0].appendChild(buildCard(game.players[0][i].hand[j]));
+        }
+    }
+}
 
 const deck = generateDeck();
 var communityCardDeals = 0;
@@ -1398,6 +1518,16 @@ function resetCards(elementContainer) {
     var elementToReset = document.getElementById(elementContainer);
     while(elementToReset.firstChild) {
         elementToReset.removeChild(elementToReset.firstChild);
+    }
+}
+
+function resetHands() {
+    var seats = document.getElementsByClassName('seat');
+    for (var i = 0; i < seats.length; i++) {
+        var hand = seats[i].getElementsByClassName('cards');
+        while (hand[0].firstChild) {
+            hand[0].removeChild(hand[0].firstChild);
+        }
     }
 }
 
@@ -1472,7 +1602,7 @@ function paintToSeat() {
         var seat = document.querySelectorAll('[data-seat="'+(players[i].seat)+'"]');
         var playerName = seat[0].getElementsByClassName('name');
         var playerMoney = seat[0].getElementsByClassName('money');
-        seat[0].setAttribute('player-table-id', i);
+        seat[0].setAttribute('player-table-id', players[i].id);
         playerName[0].textContent = players[i].name;
         playerMoney[0].textContent = '$'+calculateChips(players[i].chips);
     }
