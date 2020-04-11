@@ -109,12 +109,49 @@
     background-color:#f39c12;
 }
 
+.buttons button:disabled {
+    color: lightgray;
+    background-color: grey !important;
+    cursor: not-allowed;
+}
+
 .buttons .call {
     background-color:#2ecc71;
 }
 
 .buttons .raise {
     background-color:#8e44ad;
+}
+
+
+#raise-selector button {
+    width: 120px;
+    height:40px;
+    color: white;
+    border: none;
+    font-size:14px;
+    margin: 15px 0px;
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    background-color:#8e44ad;
+}
+
+#raise-selector {
+    height: 300px;
+    text-align: center;
+    width: 150px;
+    background-color: #3498db;
+    position: absolute;
+    top: 800px;
+    right: 20%;
+    display: none;
+    box-shadow: 0px 0px 33px #333;
+}
+
+#raise-select.show {
+    display: block;
 }
 
 .poker-table .seat {
@@ -315,7 +352,7 @@
 
 .poker-table .seat.seat-nine .player .chips {
     right: -60px;
-    top: 60px;
+    top: 80px;
     transform: rotate(90deg);
 }
 

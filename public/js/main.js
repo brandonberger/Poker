@@ -1113,7 +1113,6 @@ function sortCardsDesc(a, b) {
 }
 
 
-
 /**
  * GAME SETUP
  */
@@ -1124,16 +1123,6 @@ function setUpTable() {
     paintCardsToSeat();
 }
 
-function calculateChips(chips) {
-    var total = 0;
-    total += (chips.black) ? pokerChips.black * chips.black : 0;
-    total += (chips.green) ? pokerChips.green * chips.green : 0;
-    total += (chips.red) ? pokerChips.red * chips.red : 0;
-    total += (chips.blue) ? pokerChips.blue * chips.blue : 0;
-    total += (chips.white) ? pokerChips.white * chips.white : 0;
-    
-    return total;
-}
 
 
 const cards = {
@@ -1207,14 +1196,13 @@ const cards = {
     ]
 };
 
-const pokerChips = {
-    black: 100,
-    green: 20,
-    blue: 10,
-    red: 5, 
-    white: 1
-};
-
+// const pokerChips = {
+//     black: 100,
+//     green: 20,
+//     blue: 10,
+//     red: 5, 
+//     white: 1
+// };
 
 var players = [];
 const currentPlayerId = 1;
@@ -1230,15 +1218,28 @@ function buyInTest(seatId, id, name) {
         id: id,
         name: name,
         hand: [],
-        chips: {
-            black: 1,
-            green: 2,
-            blue: 3,
-            red: 4,
-            white: 10
-        },
+        // chips: {
+        //     black: 1,
+        //     green: 2,
+        //     blue: 3,
+        //     red: 4,
+        //     white: 10
+        // },
+        money: 200,
         winningCards: [],
-        seat: seatId
+        seat: seatId,
+        round1: {
+            bets: 0
+        },
+        round2: {
+            bets: 0
+        },
+        round3: {
+            bets: 0
+        },
+        round4: {
+            bets: 0
+        }
     });
 
     var seat = document.querySelectorAll('[data-seat="'+seatId+'"]');
@@ -1255,15 +1256,32 @@ function buyIn(seatId) {
         id: id,
         name: name,
         hand: [],
-        chips: {
-            black: 1,
-            green: 2,
-            blue: 3,
-            red: 4,
-            white: 10
-        },
+        // chips: {
+        //     black: 1,
+        //     green: 2,
+        //     blue: 3,
+        //     red: 4,
+        //     white: 10
+        // },
+        money: 200,
         winningCards: [],
-        seat: seatId
+        seat: seatId,
+        round1: {
+            bets: 0,
+        },
+        round2: {
+            bets: 0,
+        },
+        round3: {
+            bets: 0,
+        },
+        round4: {
+            bets: 0,
+        },
+
+        dealer: false,
+        smallBlind: false,
+        bigBlind: false
     });
 
     var seat = document.querySelectorAll('[data-seat="'+seatId+'"]');
@@ -1273,10 +1291,23 @@ function buyIn(seatId) {
 }
 
 var game = {
-    roundOne: {
-        maxBet: null
+    round1: {
+        currentBet: 0,
     },
-    players: []
+    round2: {
+        currentBet: 0,
+    },
+    round3: {
+        currentBet: 0,
+    },
+    round4: {
+        currentBet: 0,
+    },
+    currentRound: 0,
+    players: [],
+    smallBlind: false,
+    bigBlind: false,
+    maxTurns: 0,
 }
 
 var pause = false;
@@ -1297,37 +1328,39 @@ function startGame() {
     } 
 
     game.players.push(players);
+    game.currentRound = 1;
+    game.maxTurns = players.length;
 
     shuffleDeck();
     assignDealer();
+    triggerSmallBlind();
+    triggerBigBlind();
     dealCards();
-    game.roundOne.maxBet = bigBlind;
 
+    currentPlayerTurnId = getBigBlindPlayer().id + 1;
     continueRound();
 }
 
-var currentPlayerTurnId = 1;
+
+// GAME TIME
+
+var currentTurn = 1;
+
+
 function continueRound() {
-    while (!pause) {
-        if (currentDealerSeat == currentPlayerTurnId) {
-            console.log('Dealer');
-            currentPlayerTurnId++;
-            continue;
-        } else if (currentDealerSeat+1 == currentPlayerTurnId) {
-            triggerSmallBlind();
-            console.log('small blind');
-            currentPlayerTurnId++;
-            continue;
-        } else if (currentDealerSeat+2 == currentPlayerTurnId) {
-            triggerBigBlind();
-            console.log('big blind');
-            currentPlayerTurnId++;
-            continue;
-        } else {
+
+    if (currentPlayerTurnId > players.length) {
+        currentPlayerTurnId = 1;
+    }
+
+    if (currentTurn > game.maxTurns) {
+        nextRound();
+    } else {
+        while (!pause) {
             console.log(currentPlayerTurnId);
             promptPlayer(findPlayerInGameById(currentPlayerTurnId));
             currentPlayerTurnId++;
-            continue;
+            currentTurn++;
         }
     }
 }
@@ -1337,31 +1370,151 @@ function promptPlayer(player) {
     setEventBannerMessage( player.name + '\'s Turn');
     var controlPanel = document.getElementById('control-panel');
     controlPanel.setAttribute('player-id', player.id);
+    preparePromptButtons(player.id);
 }
 
-// TODO:
-// Do not remove the player from the game, mark them as folded.
-// Skip player if folded.
-// EZPZ
-function fold() {
+
+function nextRound() {
+    console.log(getPlayerLeftOfDealer().id);
+    currentPlayerTurnId = getPlayerLeftOfDealer().id;
+    dealCommunityCards();
+    game.currentRound = 2;
+    currentTurn = 1;
+    continueRound();
+}
+
+
+// Control Panel & Buttons
+
+function preparePromptButtons(playerId) {
+    prepareCheckButton(playerId);
+    prepareCallButton(playerId);
+}
+
+function prepareCheckButton(playerId) {
+    checkButton = getControlButton('check');
+    if (!canCheck(playerId)) {
+        checkButton.setAttribute('disabled', !canCheck(playerId));
+    }
+}
+
+function prepareCallButton(playerId) {
+    callButton = getControlButton('call');
+
+    if (canCall(playerId)) {
+        callButton.setAttribute('amount', getGameRoundsCurrentBet());
+        callButton.textContent = 'CALL $' + getCallAmountByPlayer(playerId);
+    } else {
+        callButton.setAttribute('disabled', !canCall(playerId));
+        callButton.textContent = 'CALL';
+    }
+}
+
+function getControlButton(name) {
     var controlPanel = document.getElementById('control-panel');
-    playerId = controlPanel.getAttribute('player-id');
-    player = findPlayerInGameById(playerId);
-    // removePlayerFromGameById(playerId);
+    return controlPanel.getElementsByClassName(name)[0];
+}
+
+function canCheck(playerId) {
+    if (getPlayersTotalRoundBets(playerId) == getGameRoundsCurrentBet()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function canCall(playerId) {
+    if (getPlayersTotalRoundBets(playerId) == getGameRoundsCurrentBet()) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
+
+
+
+// Game moves
+
+function fold() {
+    player = getPlayerByControlPanel();
+    player.folded = true;
     setEventBannerMessage(player.name + ' Folded');
     updateGame();
 }
 
 function check() {
-
+    player = getPlayerByControlPanel();
+    setEventBannerMessage(player.name + ' Checked');
+    updateGame();
 }
 
 function call() {
-
+    player = getPlayerByControlPanel();
+    callAmount = getCallAmountByPlayer(player.id);
+    subtractPlayersMoney(player.id, callAmount);
+    addToPot(callAmount);
+    paintToSeat();
+    setEventBannerMessage(player.name + ' Called');
+    updateGame();
 }
 
 function raise() {
+    player = getPlayerByControlPanel();
+    var raiseUI = document.getElementById('raise-selector');
+    raiseUI.className = 'show';
 
+    minBtn = raiseUI.getElementsByClassName('min-raise')[0];
+    minBtn.setAttribute('min-amount', getMiniumRaiseAmount(player));
+    minBtn.textContent = 'Min | $'+getMiniumRaiseAmount(player);
+    minBtn.setAttribute('onClick', 'raiseAmount('+getMiniumRaiseAmount(player)+')');
+
+    maxBtn = raiseUI.getElementsByClassName('max-raise')[0];
+    maxBtn.setAttribute('max-raise', player.money);
+    maxBtn.textContent = 'Max | $'+player.money;
+    maxBtn.setAttribute('onClick', 'raiseAmount('+player.money+')');
+}
+
+function raiseAmount(amount) {
+    player = getPlayerByControlPanel();
+    subtractPlayersMoney(player.id, amount);
+    addToPot(amount);
+    paintToSeat();
+    setCurrentBet(getGameRoundsCurrentBet() + amount);
+    setEventBannerMessage(player.name + ' Raised '+amount);
+    updateGame();
+}
+
+
+// Get Game Info
+
+
+function getMiniumRaiseAmount(player) {
+    minAmount = 0;
+    if (getGameRoundsCurrentBet() < player.money) {
+        minAmount = getGameRoundsCurrentBet();
+    } else {
+        minAmount = player.money;
+    }
+    
+    return minAmount;
+}
+
+function getPlayersTotalRoundBets(playerId) {
+    player = findPlayerInGameById(playerId);
+    return player['round'+game.currentRound].bets;
+}
+
+function getGameRoundsCurrentBet() {
+    return game['round'+game.currentRound].currentBet;
+}
+
+function getPlayerByControlPanel() {
+    var controlPanel = document.getElementById('control-panel');
+    playerId = controlPanel.getAttribute('player-id');
+    player = findPlayerInGameById(playerId);
+    return player;
 }
 
 function findPlayerInGameById(id) {
@@ -1371,12 +1524,54 @@ function findPlayerInGameById(id) {
     return playerObj[0];
 }
 
-function removePlayerFromGameById(id) {
-    id = parseInt(id);
-    var removeIndex = game.players[0].map(function(item) { return item.id; }).indexOf(id);
-    game.players[0].splice(removeIndex, 1);
+function getBigBlindPlayer() {
+    var playerObj = game.players[0].filter(obj => {
+        return obj.bigBlind == true
+    });
+
+    return playerObj[0];
 }
 
+function getPlayerLeftOfDealer() {
+    var playerObj = game.players[0].filter(obj => {
+        return obj.smallBlind == true
+    });
+    return playerObj[0];
+}
+
+function getCallAmountByPlayer(playerId) {
+    player = findPlayerInGameById(playerId);
+    return getGameRoundsCurrentBet() - getPlayersTotalRoundBets(playerId);
+}
+
+
+
+
+// Setting Game Info
+
+function setCurrentBet(bet) {
+    game['round'+game.currentRound].currentBet = bet;
+}
+
+function setPlayersCurrentRoundBets(playerId, amount) {
+    player = findPlayerInGameById(playerId);
+    player['round'+game.currentRound].bets = getPlayersTotalRoundBets(playerId) + amount;
+}
+
+
+function subtractPlayersMoney(playerId, cost) {
+    player = findPlayerInGameById(playerId);
+    player.money = player.money - cost;
+}
+
+// function removePlayerFromGameById(id) {
+//     id = parseInt(id);
+//     var removeIndex = game.players[0].map(function(item) { return item.id; }).indexOf(id);
+//     game.players[0].splice(removeIndex, 1);
+// }
+
+
+// Painting Game Updates
 
 function setEventBannerMessage(message) {
     var eventBanner = document.getElementById('event-banner');
@@ -1385,12 +1580,22 @@ function setEventBannerMessage(message) {
 }
 
 
+// Blinds
+
 function triggerSmallBlind() {
     var smallBlindSeat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+1)+'"');
     var smallBlindPlayerId = smallBlindSeat[0].getAttribute('player-table-id');
     var smallBlindPlayer = findPlayerInGameById(smallBlindPlayerId);
-    smallBlindPlayer.chips.white = smallBlindPlayer.chips.white - 1;
-    addToPot([{color: 'white', amount: 1}]);
+
+    game.smallBlind = true;
+    smallBlindPlayer.smallBlind = true;
+
+    setCurrentBet(1);
+    setPlayersCurrentRoundBets(smallBlindPlayerId, 1);
+    // smallBlindPlayer.chips.white = smallBlindPlayer.chips.white - 1;
+    // addChipsToPot([{color: 'white', amount: 1}]);
+    subtractPlayersMoney(smallBlindPlayerId, 1);
+    addToPot(1);
     paintToSeat();
 }
 
@@ -1398,27 +1603,65 @@ function triggerBigBlind() {
     var bigBlindSeat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+2)+'"');
     var bigBlindPlayerId = bigBlindSeat[0].getAttribute('player-table-id');
     var bigBlindPlayer = findPlayerInGameById(bigBlindPlayerId);
-    bigBlindPlayer.chips.white = bigBlindPlayer.chips.white - 2;
-    addToPot([{color: 'white', amount: 2}]);
+
+    bigBlindPlayer.bigBlind = true;
+
+    game.bigBlind = true;
+    setCurrentBet(2);
+    setPlayersCurrentRoundBets(bigBlindPlayerId, 2);
+    // bigBlindPlayer.chips.white = bigBlindPlayer.chips.white - 2;
+    // addChipsToPot([{color: 'white', amount: 2}]);
+    subtractPlayersMoney(bigBlindPlayerId, 2);
+    addToPot(2);
     paintToSeat();
 }
 
-function addToPot(chips) {
-    var totalToAdd = 0;
-    for (var i = 0; i < chips.length; i++) {
-        color = chips[i].color;
-        amount = chips[i].amount;
-        totalToAdd += calculateChips({[color]: amount});
-    }
 
-    pot = pot + totalToAdd;
+// MONEY
+
+// Add to pot
+// TODO: Make chips real
+// function addChipsToPot(chips) {
+//     var totalToAdd = 0;
+//     for (var i = 0; i < chips.length; i++) {
+//         color = chips[i].color;
+//         amount = chips[i].amount;
+//         totalToAdd += calculateChips({[color]: amount});
+//     }
+
+//     pot = pot + totalToAdd;
+//     var potText = document.getElementsByClassName('pot-amount');
+//     potText[0].textContent = '$'+pot;
+// }
+
+
+function addToPot(money) {
+    pot = pot + money;
     var potText = document.getElementsByClassName('pot-amount');
     potText[0].textContent = '$'+pot;
 }
 
+
+// function calculateChips(chips) {
+//     var total = 0;
+//     total += (chips.black) ? pokerChips.black * chips.black : 0;
+//     total += (chips.green) ? pokerChips.green * chips.green : 0;
+//     total += (chips.red) ? pokerChips.red * chips.red : 0;
+//     total += (chips.blue) ? pokerChips.blue * chips.blue : 0;
+//     total += (chips.white) ? pokerChips.white * chips.white : 0;
+    
+//     return total;
+// }
+
+
+
+// Assigns the dealer
 function assignDealer() {
     var seat = document.querySelectorAll('[data-seat="'+(currentDealerSeat+1)+'"]');
     seat[0].setAttribute('dealer', 'true');
+    playerId = seat[0].getAttribute('player-table-id');
+    player = findPlayerInGameById(playerId);
+    player.dealer = true;
     currentDealerSeat++;
 }
 
@@ -1428,11 +1671,30 @@ function assignDealer() {
 
 function updateGame() {
     resetHands();
+    resetControlPanel();
     updateGameSeats();
     updateGameCards();
     pause = false;
     continueRound();
 }
+
+function resetControlPanel() {
+    resetControlPanelButtons('fold');
+    resetControlPanelButtons('check');
+    resetControlPanelButtons('call');
+    resetControlPanelButtons('raise');
+
+    var raiseUI = document.getElementById('raise-selector');
+    raiseUI.className = '';
+}
+
+function resetControlPanelButtons(name) {
+    var controlPanel = document.getElementById('control-panel');
+    btn = controlPanel.getElementsByClassName(name)[0];
+    btn.removeAttribute('disabled');
+    btn.removeAttribute('amount');
+}
+
 
 function updateGameSeats() {
     for (var i = 0; i < game.players[0].length; i++) {
@@ -1441,7 +1703,8 @@ function updateGameSeats() {
         var playerMoney = seat[0].getElementsByClassName('money');
         seat[0].setAttribute('player-table-id', i);
         playerName[0].textContent = game.players[0][i].name;
-        playerMoney[0].textContent = '$'+calculateChips(game.players[0][i].chips);
+        // playerMoney[0].textContent = '$'+calculateChips(game.players[0][i].chips);
+        playerMoney[0].textContent = '$'+game.players[0][i].money;
     }
 }
 
@@ -1604,7 +1867,8 @@ function paintToSeat() {
         var playerMoney = seat[0].getElementsByClassName('money');
         seat[0].setAttribute('player-table-id', players[i].id);
         playerName[0].textContent = players[i].name;
-        playerMoney[0].textContent = '$'+calculateChips(players[i].chips);
+        // playerMoney[0].textContent = '$'+calculateChips(players[i].chips);
+        playerMoney[0].textContent = '$'+players[i].money;
     }
 }
 
