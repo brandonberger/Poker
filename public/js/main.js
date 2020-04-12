@@ -219,32 +219,39 @@ function autoPlay() {
 
 function findFinalHands() {
     for (var i = 0; i < players.length; i++) {
-        var finalHand = players[i].hand.concat(communityCards);
-        var winningHands = searchForWinningCards(finalHand, players[i].hand);
-        players[i].winningCards = winningHands;
+        if (players[i].hand.length == 2) {
+            var finalHand = players[i].hand.concat(communityCards);
+            var winningHands = searchForWinningCards(finalHand, players[i].hand);
+            players[i].winningCards = winningHands;
+        }
     }
 }
 
 function findWinner() {
     findFinalHands();
 
+    console.log(players);
+
     var winners = [];
     var topHandCode = 0;
     for (var i = 0; i < players.length; i++) {
-        if (topHandCode < players[i].winningCards.handCode) {
-            winners = [];
-            topHandCode = players[i].winningCards.handCode;
-            winners.push(players[i]);
-        } else if (topHandCode == players[i].winningCards.handCode) {
-            winners.push(players[i]);
+        if (players[i].hand.length == 2) {
+            if (topHandCode < players[i].winningCards.handCode) {
+                winners = [];
+                topHandCode = players[i].winningCards.handCode;
+                winners.push(players[i]);
+            } else if (topHandCode == players[i].winningCards.handCode) {
+                winners.push(players[i]);
+            }
         }
     }
 
     var winnerBanner = document.getElementById('winnerBanner');
-    
+    var winData = null;
     if (winners.length > 1) {
         // tiebreaker
         winners = tieBreaker(winners, communityCards);
+        winData = winners;
     }
 
     if (winners.message) {
@@ -255,7 +262,12 @@ function findWinner() {
 
     winnerBanner.innerHTML = winnerString;
     winnerBanner.className = 'winner-banner show';
-    return winners;
+
+    if (winData) {
+        return winData;
+    } else {
+        return {winners, message: winnerString};
+    }
 }
 
 
@@ -276,7 +288,7 @@ function highCard(winners, communityCards) {
 
     if (highestCardPlayers.length == 1) {
         var message = buildWinningMessage(highestCardPlayers, null, null);
-        return {highestCardPlayers, message: message};
+        return {winners: highestCardPlayers, message: message};
     } else {
         return kickerCard(highestCardPlayers, 4, [highestCard], null);
     }
@@ -300,7 +312,7 @@ function pairTie(winners, communityCards) {
 
     if (highestPairPlayers.length == 1) {
         var winningMessage = buildWinningMessage(highestPairPlayers, null, null);
-        return {highestPairPlayers, message: winningMessage};
+        return {winners: highestPairPlayers, message: winningMessage};
     } else {
         return kickerCard(highestPairPlayers, 3, [highestPair], null);
     }
@@ -328,7 +340,7 @@ function tieFourOfAKind(winners, communityCards) {
         return kickerCard(highestCardPlayers, 1, [highestCard], null);
     } else {
         var winningMessage = buildWinningMessage(highestCardPlayers, null, null);
-        return {highestCardPlayers, message: winningMessage};
+        return {winners: highestCardPlayers, message: winningMessage};
     }
 }
 
@@ -371,7 +383,7 @@ function tieThreeOfAKind(winners, communityCards) {
 
     if (highestCardPlayers.length == 1) {
         var winningMessage = buildWinningMessage(highestCardPlayers, null, null);
-        return {highestCardPlayers, message: winningMessage};
+        return {winners: highestCardPlayers, message: winningMessage};
     } else {
         return kickerCard(highestCardPlayers, 2, [highestCard], null);
     }
@@ -426,10 +438,10 @@ function tieFullHouse(winners, communityCards) {
 
     if (highestCardPlayers.length > 1) {
         var winningMessage = buildWinningMessage(highestCardPlayers, null, true);
-        return {highestCardPlayers, message: winningMessage};
+        return {winners: highestCardPlayers, message: winningMessage};
     } else {
         var winningMessage = buildWinningMessage(highestCardPlayers, null, false);
-        return {highestCardPlayers, message: winningMessage};
+        return {winners: highestCardPlayers, message: winningMessage};
     }
 }
 
@@ -452,10 +464,10 @@ function tieStraightFlush(winners, communityCards) {
 
     if (highestCardPlayers.length == 1) {
         var winningMessage = buildWinningMessage(highestCardPlayers, null, null);
-        return {highestCardPlayers, message: winningMessage};
+        return {winners: highestCardPlayers, message: winningMessage};
     } else {
         var winningMessage = buildWinningMessage(highestCardPlayers, null, true);
-        return {highestCardPlayers, message: winningMessage};
+        return {winners: highestCardPlayers, message: winningMessage};
     }
 }
 
@@ -506,10 +518,10 @@ function tieFlush(winners, communityCards) {
     if (singleWinner == false && count == 5) {
         console.log('split');
         var winningMessage = buildWinningMessage(winningPlayerObjects, false, true);
-        return {winningPlayerObjects, message: winningMessage};
+        return {winners: winningPlayerObjects, message: winningMessage};
     } else {
         var winningMessage = buildWinningMessage(winningPlayerObjects, false, false);
-        return {winningPlayerObjects, message: winningMessage};
+        return {winners: winningPlayerObjects, message: winningMessage};
     }
 
 
@@ -570,10 +582,10 @@ function tieStraight(winners, communityCards) {
 
     if (highestStraightPlayers.length == 1) {
         var winningMessage = buildWinningMessage(highestStraightPlayers, null, null);
-        return {highestStraightPlayers, message: winningMessage};
+        return {winners: highestStraightPlayers, message: winningMessage};
     } else {
         var winningMessage = buildWinningMessage(highestStraightPlayers, null, 1);
-        return {highestStraightPlayers, message: winningMessage};
+        return {winners: highestStraightPlayers, message: winningMessage};
     }
 }
 
@@ -628,7 +640,7 @@ function tieTwoPair(winners, communityCards) {
     if (highestPairPlayers.length == 1) {
         console.log(highestPairPlayers);
         var winningMessage = buildWinningMessage(highestPairPlayers, false, true);
-        return {highestPairPlayers, message: winningMessage};
+        return {winners: highestPairPlayers, message: winningMessage};
     } else {
         var valuesToIgnore = [];
         for (var i = 0; i < highestPairPlayers.length; i++) {
@@ -667,7 +679,7 @@ function kickerCard(winningPlayers, numberOfKickers, valuesToIgnore, suiteToIgno
     if (highestKickerPlayers.length > 1 && checkKickerInCommunity(highestKicker)) {
         console.log('Players split pot - kicker in community');
         var winningMessage = buildWinningMessage(highestKickerPlayers, null, true);
-        return {highestKickerPlayers, message: winningMessage};
+        return {winners: highestKickerPlayers, message: winningMessage};
     }
 
     if (highestKickerPlayers.length > 1 && numberOfKickers > 0) {
@@ -680,7 +692,7 @@ function kickerCard(winningPlayers, numberOfKickers, valuesToIgnore, suiteToIgno
     if (highestKickerPlayers.length == 1) {
         console.log('Kicker found');
         var winningMessage = buildWinningMessage(highestKickerPlayers, highestKicker, false);
-        return {highestKickerPlayers, message: winningMessage};
+        return {winners: highestKickerPlayers, message: winningMessage};
     }
 }
 
@@ -1239,7 +1251,11 @@ function buyInTest(seatId, id, name) {
         },
         round4: {
             bets: 0
-        }
+        },
+        dealer: false,
+        smallBlind: false,
+        bigBlind: false,
+        folded: false
     });
 
     var seat = document.querySelectorAll('[data-seat="'+seatId+'"]');
@@ -1278,10 +1294,10 @@ function buyIn(seatId) {
         round4: {
             bets: 0,
         },
-
         dealer: false,
         smallBlind: false,
-        bigBlind: false
+        bigBlind: false,
+        folded: false
     });
 
     var seat = document.querySelectorAll('[data-seat="'+seatId+'"]');
@@ -1308,6 +1324,9 @@ var game = {
     smallBlind: false,
     bigBlind: false,
     maxTurns: 0,
+    folded: 0,
+    over: false,
+    pot: 0
 }
 
 var pause = false;
@@ -1318,11 +1337,11 @@ function startGame() {
     buyInTest(3, 3, 'Dan');
     buyInTest(4, 4, 'Eeema');
     buyInTest(5, 5, 'Dune');
-    buyInTest(6, 6, 'Donald Trump');
-    buyInTest(7, 7, 'Joe Exotic');
-    buyInTest(8, 8, 'Dr. Fauci');
-    buyInTest(9, 9, 'COVID-19');
-    buyInTest(10, 10, 'Ranchel');
+    // buyInTest(6, 6, 'Donald Trump');
+    // buyInTest(7, 7, 'Joe Exotic');
+    // buyInTest(8, 8, 'Dr. Fauci');
+    // buyInTest(9, 9, 'COVID-19');
+    // buyInTest(10, 6, 'Ranchel');
     if (players.length < 3) {
         return 'Not Enough Players';
     } 
@@ -1341,32 +1360,79 @@ function startGame() {
     continueRound();
 }
 
-
 // GAME TIME
 
 var currentTurn = 1;
 
 
 function continueRound() {
-
-    if (currentPlayerTurnId > players.length) {
-        currentPlayerTurnId = 1;
+    if (game.folded == players.length - 1) {
+        game.over = true;
+        handleWin(findLastRemainingPlayer());
     }
-
-    if (currentTurn > game.maxTurns) {
-        nextRound();
-    } else {
-        while (!pause) {
-            console.log(currentPlayerTurnId);
-            promptPlayer(findPlayerInGameById(currentPlayerTurnId));
-            currentPlayerTurnId++;
-            currentTurn++;
+    if (!game.over) {
+        if (currentTurn > game.maxTurns) {
+            nextRound();
+        } else {
+            while (!pause) {
+                if (currentPlayerTurnId > players.length) {
+                    currentPlayerTurnId = 1;
+                }
+                player = findPlayerInGameById(currentPlayerTurnId);
+                console.log(currentPlayerTurnId);
+                console.log(player);
+                if (player.folded) {
+                    currentTurn++;
+                    currentPlayerTurnId++;
+                } else {
+                    promptPlayer(player);
+                    currentPlayerTurnId++;
+                    currentTurn++;
+                }
+            }
         }
     }
 }
 
+
+function findLastRemainingPlayer() {
+    var playerObj = game.players[0].filter(obj => {
+        return obj.folded == false
+    });
+    return playerObj[0];
+}
+
+
+function handleWin(winData) {
+    player = winData.winners[0];
+
+    console.log(player.name + ' wins');
+    addPlayerMoney(player, game.pot);
+    resetPot();
+    setEventBannerMessage(winData.message + ' | ' + player.name + ' Wins $' + game.pot + '!');
+    paintToSeat();
+}
+
+
+function handleTie(winData) {
+
+    numberOfWinners = winData.winners.length;
+    splitPot = game.pot / numberOfWinners;
+
+    console.log('number of winners: ' + numberOfWinners);
+    console.log('split amount: ' + splitPot);
+
+    for (var i = 0; i < winData.winners.length; i++) {
+        addPlayerMoney(winData.winners[i], splitPot);
+    }
+    resetPot();
+    setEventBannerMessage(winData.message);
+    paintToSeat();
+}
+
 function promptPlayer(player) {
     pause = true;
+    highlightPlayer(player.id);
     setEventBannerMessage( player.name + '\'s Turn');
     var controlPanel = document.getElementById('control-panel');
     controlPanel.setAttribute('player-id', player.id);
@@ -1375,12 +1441,24 @@ function promptPlayer(player) {
 
 
 function nextRound() {
-    console.log(getPlayerLeftOfDealer().id);
-    currentPlayerTurnId = getPlayerLeftOfDealer().id;
-    dealCommunityCards();
-    game.currentRound = 2;
-    currentTurn = 1;
-    continueRound();
+    if (game.currentRound == 4) {
+        console.log('game over');
+        winners = findWinner();
+
+        console.log(winners);
+
+        if (winners.winners.length > 1) {
+            handleTie(winners);
+        } else {
+            handleWin(winners);
+        }
+    } else {
+        currentPlayerTurnId = getPlayerLeftOfDealer().id;
+        dealCommunityCards();
+        game.currentRound++;
+        currentTurn = 1;
+        continueRound();
+    }
 }
 
 
@@ -1403,7 +1481,15 @@ function prepareCallButton(playerId) {
 
     if (canCall(playerId)) {
         callButton.setAttribute('amount', getGameRoundsCurrentBet());
-        callButton.textContent = 'CALL $' + getCallAmountByPlayer(playerId);
+        if (canCallAll(playerId)) {
+            if (callIsAll(playerId)) {
+                callButton.textContent = 'ALL IN $' + getCallAmountByPlayer(playerId);
+            } else {
+                callButton.textContent = 'CALL $' + getCallAmountByPlayer(playerId);
+            }
+        } else {
+            callButton.textContent = 'ALL IN $' + getCallAmountByPlayer(playerId);
+        }
     } else {
         callButton.setAttribute('disabled', !canCall(playerId));
         callButton.textContent = 'CALL';
@@ -1431,6 +1517,25 @@ function canCall(playerId) {
     }
 }
 
+function canCallAll(playerId) {
+    player = findPlayerInGameById(playerId);
+    if (player.money < getGameRoundsCurrentBet()) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
+function callIsAll(playerId) {
+    player = findPlayerInGameById(playerId);
+    if (player.money == getGameRoundsCurrentBet()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 
 
@@ -1440,7 +1545,11 @@ function canCall(playerId) {
 function fold() {
     player = getPlayerByControlPanel();
     player.folded = true;
+    player.hand = [];
     setEventBannerMessage(player.name + ' Folded');
+    removePlayersCards(player);
+    foldPlayerUI(player.id);
+    game.folded++;
     updateGame();
 }
 
@@ -1469,6 +1578,11 @@ function raise() {
     minBtn.setAttribute('min-amount', getMiniumRaiseAmount(player));
     minBtn.textContent = 'Min | $'+getMiniumRaiseAmount(player);
     minBtn.setAttribute('onClick', 'raiseAmount('+getMiniumRaiseAmount(player)+')');
+    
+    midBtn = raiseUI.getElementsByClassName('mid-raise')[0];
+    midBtn.setAttribute('mid-amount', getMiniumRaiseAmount(player) * 2);
+    midBtn.textContent = '2x | $'+getMiniumRaiseAmount(player) * 2;
+    midBtn.setAttribute('onClick', 'raiseAmount('+getMiniumRaiseAmount(player)*2+')');
 
     maxBtn = raiseUI.getElementsByClassName('max-raise')[0];
     maxBtn.setAttribute('max-raise', player.money);
@@ -1478,11 +1592,11 @@ function raise() {
 
 function raiseAmount(amount) {
     player = getPlayerByControlPanel();
-    subtractPlayersMoney(player.id, amount);
-    addToPot(amount);
+    subtractPlayersMoney(player.id, getGameRoundsCurrentBet() + amount);
+    addToPot(getGameRoundsCurrentBet() + amount);
     paintToSeat();
     setCurrentBet(getGameRoundsCurrentBet() + amount);
-    setEventBannerMessage(player.name + ' Raised '+amount);
+    setEventBannerMessage(player.name + ' Raised $'+amount);
     updateGame();
 }
 
@@ -1492,8 +1606,11 @@ function raiseAmount(amount) {
 
 function getMiniumRaiseAmount(player) {
     minAmount = 0;
-    if (getGameRoundsCurrentBet() < player.money) {
-        minAmount = getGameRoundsCurrentBet();
+
+    if (getGameRoundsCurrentBet() <= 0) {
+        minAmount = bigBlind;
+    } else if (getGameRoundsCurrentBet() < player.money) {
+        minAmount = getGameRoundsCurrentBet() * 2;
     } else {
         minAmount = player.money;
     }
@@ -1541,7 +1658,17 @@ function getPlayerLeftOfDealer() {
 
 function getCallAmountByPlayer(playerId) {
     player = findPlayerInGameById(playerId);
-    return getGameRoundsCurrentBet() - getPlayersTotalRoundBets(playerId);
+
+    if (getGameRoundsCurrentBet() - getPlayersTotalRoundBets(playerId) > player.money) {
+        return player.money;
+    } else {
+        return getGameRoundsCurrentBet() - getPlayersTotalRoundBets(playerId);
+    }
+}
+
+function getPlayerMoneyById(playerId) {
+    player = findPlayerInGameById(playerId);
+    return player.money;
 }
 
 
@@ -1564,6 +1691,16 @@ function subtractPlayersMoney(playerId, cost) {
     player.money = player.money - cost;
 }
 
+function addPlayerMoney(player, amount) {
+    player.money = player.money + amount;
+}
+
+function resetPot() {
+    game.pot = pot;
+    var potText = document.getElementsByClassName('pot-amount');
+    potText[0].textContent = '$0';
+}
+
 // function removePlayerFromGameById(id) {
 //     id = parseInt(id);
 //     var removeIndex = game.players[0].map(function(item) { return item.id; }).indexOf(id);
@@ -1573,10 +1710,36 @@ function subtractPlayersMoney(playerId, cost) {
 
 // Painting Game Updates
 
+
+function foldPlayerUI(playerId) {
+    var playersSeat = document.querySelectorAll('[data-seat="'+(playerId)+'"');
+    var playerName = playersSeat[0].getElementsByClassName('name')[0];
+    var playerMoney = playersSeat[0].getElementsByClassName('money')[0];
+    playerName.classList.add('folded');
+    playerMoney.classList.add('folded');
+}
+
+function highlightPlayer(playerId) {
+    var seats = document.getElementsByClassName('player-highlight');
+    for (var i = 0; i < seats.length; i++) {
+        seats[i].classList.remove('player-highlight');
+    }
+
+    var playersSeat = document.querySelectorAll('[data-seat="'+(playerId)+'"');
+    var playerName = playersSeat[0].getElementsByClassName('name')[0];
+    playerName.classList.add('player-highlight');
+}
+
 function setEventBannerMessage(message) {
     var eventBanner = document.getElementById('event-banner');
     var eventBannerMessage = eventBanner.getElementsByClassName('message');
     eventBannerMessage[0].textContent = message;
+}
+
+function removePlayersCards(player) {
+    var playersSeat = document.querySelectorAll('[data-seat="'+(player.id)+'"');
+    var playersCards = playersSeat[0].getElementsByClassName('cards')[0];
+    playersCards.classList.add('hide');
 }
 
 
@@ -1637,6 +1800,7 @@ function triggerBigBlind() {
 
 function addToPot(money) {
     pot = pot + money;
+    game.pot = pot;
     var potText = document.getElementsByClassName('pot-amount');
     potText[0].textContent = '$'+pot;
 }
@@ -1671,11 +1835,16 @@ function assignDealer() {
 
 function updateGame() {
     resetHands();
-    resetControlPanel();
     updateGameSeats();
     updateGameCards();
     pause = false;
-    continueRound();
+
+    disabledControlPanel();
+
+    setTimeout(function(){ 
+        resetControlPanel();
+        continueRound(); 
+    }, 200);
 }
 
 function resetControlPanel() {
@@ -1688,11 +1857,27 @@ function resetControlPanel() {
     raiseUI.className = '';
 }
 
+function disabledControlPanel() {
+    disabledControlPanelButtons('fold');
+    disabledControlPanelButtons('check');
+    disabledControlPanelButtons('call');
+    disabledControlPanelButtons('raise');
+
+    var raiseUI = document.getElementById('raise-selector');
+    raiseUI.className = '';
+}
+
 function resetControlPanelButtons(name) {
     var controlPanel = document.getElementById('control-panel');
     btn = controlPanel.getElementsByClassName(name)[0];
     btn.removeAttribute('disabled');
     btn.removeAttribute('amount');
+}
+
+function disabledControlPanelButtons(name) {
+    var controlPanel = document.getElementById('control-panel');
+    btn = controlPanel.getElementsByClassName(name)[0];
+    btn.setAttribute('disabled', 'true');
 }
 
 

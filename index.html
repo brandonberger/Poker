@@ -4,12 +4,14 @@
         <link rel="stylesheet" href="public/css/main.css" />
         <link rel="shortcut icon" href="public/img/fav.ico">
     </head>
-    <body>
+    <body style="background-color: slategray;">
 
 
-        <div class="winner-banner" id="winnerBanner">
+        <div class="winner-banner" id="winnerBanner" style="display:none;">
             
         </div>
+
+        <button onclick="startGame()">Start Game</button>
 
         <div class="poker-room">
             <div class="poker-table">
@@ -284,6 +286,7 @@
 
         <div id="raise-selector">
             <button class="raise min-raise"></button>
+            <button class="raise mid-raise"></button>
             <button class="raise max-raise"></button>
         </div>
 
@@ -292,6 +295,7 @@
         <br />
         <br />
 
+        <button onclick="startRound()">Start Game</button>
         <button onclick="setUpTable()">Setup Table</button>
         <button onclick="shuffleDeck()">Shuffle Deck</button>
         <button onclick="dealCards()">Deal</button>

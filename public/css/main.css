@@ -12,9 +12,9 @@
 } */
 
 
-.highlight {
+/* .highlight {
     border: solid 1px blue;
-}
+} */
 
 .card .topValue {
     padding: 5px;
@@ -181,13 +181,28 @@
     border-radius: 50px;
 }
 
+.poker-table .player .name.player-highlight {
+    background-color:#2ecc71 ;
+}
+
+.poker-table .player .name.folded {
+    background-color: grey;
+    color: lightgray;
+}
+
+.poker-table .player .money.folded {
+    color: lightgray;
+    background-color: grey;
+}
+
+
 .poker-table .player .money {
     color: white;
     font-family: sans-serif;
     margin-top:5px;
     width:50%;
     padding: 5px 0;
-    background-color: #969696;
+    background-color: #9d40f1;
     border-radius: 50px;
     font-size:12px;
     float:right;
@@ -364,6 +379,10 @@
 
 
 /* CARDS */
+
+.cards.hide {
+    display: none;
+}
 
 .poker-table .seat.seat-one .player .cards {
     position: absolute;
