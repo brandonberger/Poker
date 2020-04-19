@@ -1597,6 +1597,7 @@ function raiseAmount(amount) {
     paintToSeat();
     setCurrentBet(getGameRoundsCurrentBet() + amount);
     setEventBannerMessage(player.name + ' Raised $'+amount);
+    currentTurn = 2;
     updateGame();
 }
 
