@@ -1,3 +1,2 @@
 basically the entire game of texas holdem coded in a single javascript file. 
-why is it one file?
-i couldn't tell you
+why did i put it all in one file? i guess the pandemic made us do funny things
